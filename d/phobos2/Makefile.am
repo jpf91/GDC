@@ -167,7 +167,7 @@ RT_OSX_OBJS=core/sys/osx/mach/kern_return.o core/sys/osx/mach/port.o \
 RT_POSIX_OBJS=core/sys/posix/netinet/in_.o core/sys/posix/sys/select.o \
 	      core/sys/posix/sys/socket.o core/sys/posix/sys/stat.o \
 	      core/sys/posix/sys/wait.o core/sys/posix/sys/un.o \
-	      core/sys/posix/netdb.o
+	      core/sys/posix/netdb.o core/sys/posix/signal.o
 
 RT_WINDOWS_OBJS=core/sys/windows/dbghelp.o core/sys/windows/dll.o \
 		core/sys/windows/stacktrace.o core/sys/windows/threadaux.o \
@@ -208,11 +208,11 @@ CORE_IMPORTS=core/atomic.di core/bitop.di core/cpuid.di core/demangle.di \
 	     core/sys/posix/setjmp.di core/sys/posix/signal.di \
 	     core/sys/posix/stdio.di core/sys/posix/stdlib.di \
 	     core/sys/posix/termios.di core/sys/posix/time.di \
-	     core/sys/posix/ucontext.di core/sys/posix/unistd.di \
+	     core/sys/posix/unistd.di \
 	     core/sys/posix/utime.di core/sys/posix/net/if_.di \
 	     core/sys/posix/netinet/in_.di core/sys/posix/netinet/tcp.di \
 	     core/sys/posix/sys/ipc.di core/sys/posix/sys/mman.di \
-	     core/sys/posix/sys/select.di core/sys/posix/sys/shm.di \
+	     core/sys/posix/sys/select.di \
 	     core/sys/posix/sys/socket.di core/sys/posix/sys/stat.di \
 	     core/sys/posix/sys/time.di core/sys/posix/sys/types.di \
 	     core/sys/posix/sys/uio.di core/sys/posix/sys/un.di \
