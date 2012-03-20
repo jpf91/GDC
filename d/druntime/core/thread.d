@@ -2892,6 +2892,7 @@ private
         version( AsmX86_Posix )      {} else
         version( AsmX86_64_Windows ) {} else
         version( AsmX86_64_Posix )   {} else
+        version(Android)             {} else //Android doesn't have ucontext.h
         version( AsmPPC_Posix )      {} else
         {
             // NOTE: The ucontext implementation requires architecture specific
