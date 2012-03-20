@@ -80,63 +80,27 @@ mode_t umask(mode_t);
 
 version( linux )
 {
-    static if( __USE_LARGEFILE64 )
-    {
-        private alias uint _pad_t;
-    }
-    else
-    {
-        private alias ushort _pad_t;
-    }
-
     struct stat_t
     {
         dev_t       st_dev;
-        _pad_t      __pad1;
-      static if( __USE_FILE_OFFSET64 )
-      {
+        ubyte[4]    __pad1;
         ino_t       __st_ino;
-      }
-      else
-      {
-        ino_t       st_ino;
-      }
         mode_t      st_mode;
         nlink_t     st_nlink;
         uid_t       st_uid;
         gid_t       st_gid;
         dev_t       st_rdev;
-        _pad_t      __pad2;
-        off_t       st_size;
-        blksize_t   st_blksize;
-        blkcnt_t    st_blocks;
-      static if( false /*__USE_MISC*/ ) // true if _BSD_SOURCE || _SVID_SOURCE
-      {
-        timespec    st_atim;
-        timespec    st_mtim;
-        timespec    st_ctim;
-        alias st_atim.tv_sec st_atime;
-        alias st_mtim.tv_sec st_mtime;
-        alias st_ctim.tv_sec st_ctime;
-      }
-      else
-      {
+        ubyte[4]    __pad2;
+        long        st_size;
+        c_ulong     st_blksize;
+        ulong       st_blocks;
         time_t      st_atime;
         c_ulong     st_atimensec;
         time_t      st_mtime;
         c_ulong     st_mtimensec;
         time_t      st_ctime;
         c_ulong     st_ctimensec;
-      }
-      static if( __USE_FILE_OFFSET64 )
-      {
         ino_t       st_ino;
-      }
-      else
-      {
-        c_ulong     __unused4;
-        c_ulong     __unused5;
-      }
     }
 
     enum S_IRUSR    = 0400;
@@ -181,182 +145,22 @@ version( linux )
         extern bool S_TYPEISSHM( stat_t* buf ) { return false; }
     }
 }
-else version( OSX )
-{
-    struct stat_t
-    {
-        dev_t       st_dev;
-        ino_t       st_ino;
-        mode_t      st_mode;
-        nlink_t     st_nlink;
-        uid_t       st_uid;
-        gid_t       st_gid;
-        dev_t       st_rdev;
-      static if( false /*!_POSIX_C_SOURCE || _DARWIN_C_SOURCE*/ )
-      {
-          timespec  st_atimespec;
-          timespec  st_mtimespec;
-          timespec  st_ctimespec;
-      }
-      else
-      {
-        time_t      st_atime;
-        c_long      st_atimensec;
-        time_t      st_mtime;
-        c_long      st_mtimensec;
-        time_t      st_ctime;
-        c_long      st_ctimensec;
-      }
-        off_t       st_size;
-        blkcnt_t    st_blocks;
-        blksize_t   st_blksize;
-        uint        st_flags;
-        uint        st_gen;
-        int         st_lspare;
-        long        st_qspare[2];
-    }
 
-    enum S_IRUSR    = 0400;
-    enum S_IWUSR    = 0200;
-    enum S_IXUSR    = 0100;
-    enum S_IRWXU    = S_IRUSR | S_IWUSR | S_IXUSR;
 
-    enum S_IRGRP    = S_IRUSR >> 3;
-    enum S_IWGRP    = S_IWUSR >> 3;
-    enum S_IXGRP    = S_IXUSR >> 3;
-    enum S_IRWXG    = S_IRWXU >> 3;
+int    chmod(in char*, mode_t);
+int    fchmod(int, mode_t);
+//int    fstat(int, stat_t*);
+//int    lstat(in char*, stat_t*);
+int    mkdir(in char*, mode_t);
+int    mkfifo(in char*, mode_t);
+//int    stat(in char*, stat_t*);
+mode_t umask(mode_t);
 
-    enum S_IROTH    = S_IRGRP >> 3;
-    enum S_IWOTH    = S_IWGRP >> 3;
-    enum S_IXOTH    = S_IXGRP >> 3;
-    enum S_IRWXO    = S_IRWXG >> 3;
 
-    enum S_ISUID    = 04000;
-    enum S_ISGID    = 02000;
-    enum S_ISVTX    = 01000;
+int   fstat(int, stat_t*);
+int   lstat(in char*, stat_t*);
+int   stat(in char*, stat_t*);
 
-    private
-    {
-        extern (D) bool S_ISTYPE( mode_t mode, uint mask )
-        {
-            return ( mode & S_IFMT ) == mask;
-        }
-    }
-
-    extern (D) bool S_ISBLK( mode_t mode )  { return S_ISTYPE( mode, S_IFBLK );  }
-    extern (D) bool S_ISCHR( mode_t mode )  { return S_ISTYPE( mode, S_IFCHR );  }
-    extern (D) bool S_ISDIR( mode_t mode )  { return S_ISTYPE( mode, S_IFDIR );  }
-    extern (D) bool S_ISFIFO( mode_t mode ) { return S_ISTYPE( mode, S_IFIFO );  }
-    extern (D) bool S_ISREG( mode_t mode )  { return S_ISTYPE( mode, S_IFREG );  }
-    extern (D) bool S_ISLNK( mode_t mode )  { return S_ISTYPE( mode, S_IFLNK );  }
-    extern (D) bool S_ISSOCK( mode_t mode ) { return S_ISTYPE( mode, S_IFSOCK ); }
-}
-else version( FreeBSD )
-{
-    struct stat_t
-    {
-        dev_t       st_dev;
-        ino_t       st_ino;
-        mode_t      st_mode;
-        nlink_t     st_nlink;
-        uid_t       st_uid;
-        gid_t       st_gid;
-        dev_t       st_rdev;
-
-        time_t      st_atime;
-        c_long      __st_atimensec;
-        time_t      st_mtime;
-        c_long      __st_mtimensec;
-        time_t      st_ctime;
-        c_long      __st_ctimensec;
-
-        off_t       st_size;
-        blkcnt_t    st_blocks;
-        blksize_t   st_blksize;
-        fflags_t    st_flags;
-        uint        st_gen;
-        int         st_lspare;
-
-        time_t      st_birthtime;
-        c_long      st_birthtimensec;
-
-        ubyte[16 - timespec.sizeof] padding;
-    }
-
-    enum S_IRUSR    = 0000400;
-    enum S_IWUSR    = 0000200;
-    enum S_IXUSR    = 0000100;
-    enum S_IRWXU    = 0000700;
-
-    enum S_IRGRP    = 0000040;
-    enum S_IWGRP    = 0000020;
-    enum S_IXGRP    = 0000010;
-    enum S_IRWXG    = 0000070;
-
-    enum S_IROTH    = 0000004;
-    enum S_IWOTH    = 0000002;
-    enum S_IXOTH    = 0000001;
-    enum S_IRWXO    = 0000007;
-
-    enum S_ISUID    = 0004000;
-    enum S_ISGID    = 0002000;
-    enum S_ISVTX    = 0001000;
-
-    private
-    {
-        extern (D) bool S_ISTYPE( mode_t mode, uint mask )
-        {
-            return ( mode & S_IFMT ) == mask;
-        }
-    }
-
-    extern (D) bool S_ISBLK( mode_t mode )  { return S_ISTYPE( mode, S_IFBLK );  }
-    extern (D) bool S_ISCHR( mode_t mode )  { return S_ISTYPE( mode, S_IFCHR );  }
-    extern (D) bool S_ISDIR( mode_t mode )  { return S_ISTYPE( mode, S_IFDIR );  }
-    extern (D) bool S_ISFIFO( mode_t mode ) { return S_ISTYPE( mode, S_IFIFO );  }
-    extern (D) bool S_ISREG( mode_t mode )  { return S_ISTYPE( mode, S_IFREG );  }
-    extern (D) bool S_ISLNK( mode_t mode )  { return S_ISTYPE( mode, S_IFLNK );  }
-    extern (D) bool S_ISSOCK( mode_t mode ) { return S_ISTYPE( mode, S_IFSOCK ); }
-}
-
-version( Posix )
-{
-    int    chmod(in char*, mode_t);
-    int    fchmod(int, mode_t);
-    //int    fstat(int, stat_t*);
-    //int    lstat(in char*, stat_t*);
-    int    mkdir(in char*, mode_t);
-    int    mkfifo(in char*, mode_t);
-    //int    stat(in char*, stat_t*);
-    mode_t umask(mode_t);
-}
-
-version( linux )
-{
-  static if( __USE_LARGEFILE64 )
-  {
-    int   fstat64(int, stat_t*);
-    alias fstat64 fstat;
-
-    int   lstat64(in char*, stat_t*);
-    alias lstat64 lstat;
-
-    int   stat64(in char*, stat_t*);
-    alias stat64 stat;
-  }
-  else
-  {
-    int   fstat(int, stat_t*);
-    int   lstat(in char*, stat_t*);
-    int   stat(in char*, stat_t*);
-  }
-}
-else version( Posix )
-{
-    int   fstat(int, stat_t*);
-    int   lstat(in char*, stat_t*);
-    int   stat(in char*, stat_t*);
-}
 
 //
 // Typed Memory Objects (TYM)
@@ -381,42 +185,13 @@ S_IFSOCK
 int mknod(in 3char*, mode_t, dev_t);
 */
 
-version( linux )
-{
-    enum S_IFMT     = 0170000;
-    enum S_IFBLK    = 0060000;
-    enum S_IFCHR    = 0020000;
-    enum S_IFIFO    = 0010000;
-    enum S_IFREG    = 0100000;
-    enum S_IFDIR    = 0040000;
-    enum S_IFLNK    = 0120000;
-    enum S_IFSOCK   = 0140000;
+enum S_IFMT     = 0170000;
+enum S_IFBLK    = 0060000;
+enum S_IFCHR    = 0020000;
+enum S_IFIFO    = 0010000;
+enum S_IFREG    = 0100000;
+enum S_IFDIR    = 0040000;
+enum S_IFLNK    = 0120000;
+enum S_IFSOCK   = 0140000;
 
-    int mknod(in char*, mode_t, dev_t);
-}
-else version( OSX )
-{
-    enum S_IFMT     = 0170000;
-    enum S_IFBLK    = 0060000;
-    enum S_IFCHR    = 0020000;
-    enum S_IFIFO    = 0010000;
-    enum S_IFREG    = 0100000;
-    enum S_IFDIR    = 0040000;
-    enum S_IFLNK    = 0120000;
-    enum S_IFSOCK   = 0140000;
-
-    int mknod(in char*, mode_t, dev_t);
-}
-else version( FreeBSD )
-{
-    enum S_IFMT     = 0170000;
-    enum S_IFBLK    = 0060000;
-    enum S_IFCHR    = 0020000;
-    enum S_IFIFO    = 0010000;
-    enum S_IFREG    = 0100000;
-    enum S_IFDIR    = 0040000;
-    enum S_IFLNK    = 0120000;
-    enum S_IFSOCK   = 0140000;
-
-    int mknod(in char*, mode_t, dev_t);
-}
+int mknod(in char*, mode_t, dev_t);

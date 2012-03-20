@@ -29,11 +29,3 @@ version( linux )
 {
     enum TCP_NODELAY = 1;
 }
-else version( OSX )
-{
-    enum TCP_NODELAY = 1;
-}
-else version( FreeBSD )
-{
-    enum TCP_NODELAY = 1;
-}

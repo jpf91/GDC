@@ -40,7 +40,15 @@ private
 
     extern (C) string[] rt_args();
 
-    version( linux )
+    //TODO: Fix backtrace for GCC using gcc.unwind
+    version(Android)
+    {
+        import core.demangle;
+        import core.stdc.stdlib : free;
+        import core.stdc.string : strlen, memchr;
+        import core.sys.posix.signal; // segv handler
+    }
+    else version( linux )
     {
         import core.demangle;
         import core.stdc.stdlib : free;

@@ -38,31 +38,6 @@ POSIX_MADV_WILLNEED
 POSIX_MADV_DONTNEED
 */
 
-version( linux )
-{
-    enum POSIX_MADV_NORMAL      = 0;
-    enum POSIX_MADV_RANDOM      = 1;
-    enum POSIX_MADV_SEQUENTIAL  = 2;
-    enum POSIX_MADV_WILLNEED    = 3;
-    enum POSIX_MADV_DONTNEED    = 4;
-}
-else version( OSX )
-{
-    enum POSIX_MADV_NORMAL      = 0;
-    enum POSIX_MADV_RANDOM      = 1;
-    enum POSIX_MADV_SEQUENTIAL  = 2;
-    enum POSIX_MADV_WILLNEED    = 3;
-    enum POSIX_MADV_DONTNEED    = 4;
-}
-else version( FreeBSD )
-{
-    enum POSIX_MADV_NORMAL      = 0;
-    enum POSIX_MADV_RANDOM      = 1;
-    enum POSIX_MADV_SEQUENTIAL  = 2;
-    enum POSIX_MADV_WILLNEED    = 3;
-    enum POSIX_MADV_DONTNEED    = 4;
-}
-
 //
 // Memory Mapped Files, Shared Memory Objects, or Memory Protection (MC2)
 //
@@ -80,20 +55,6 @@ version( linux )
     enum PROT_WRITE     = 0x2;
     enum PROT_EXEC      = 0x4;
 }
-else version( OSX )
-{
-    enum PROT_NONE      = 0x00;
-    enum PROT_READ      = 0x01;
-    enum PROT_WRITE     = 0x02;
-    enum PROT_EXEC      = 0x04;
-}
-else version( FreeBSD )
-{
-    enum PROT_NONE      = 0x00;
-    enum PROT_READ      = 0x01;
-    enum PROT_WRITE     = 0x02;
-    enum PROT_EXEC      = 0x04;
-}
 
 //
 // Memory Mapped Files, Shared Memory Objects, or Typed Memory Objects (MC3)
@@ -103,31 +64,9 @@ void* mmap(void*, size_t, int, int, int, off_t);
 int munmap(void*, size_t);
 */
 
-version( linux )
-{
-    //void* mmap(void*, size_t, int, int, int, off_t);
-    int   munmap(void*, size_t);
 
-  static if( __USE_LARGEFILE64 )
-  {
-    void* mmap64(void*, size_t, int, int, int, off_t);
-    alias mmap64 mmap;
-  }
-  else
-  {
-    void* mmap(void*, size_t, int, int, int, off_t);
-  }
-}
-else version( OSX )
-{
-    void* mmap(void*, size_t, int, int, int, off_t);
-    int   munmap(void*, size_t);
-}
-else version( FreeBSD )
-{
-    void* mmap(void*, size_t, int, int, int, off_t);
-    int   munmap(void*, size_t);
-}
+void* mmap(void*, size_t, int, int, int, off_t);
+int   munmap(void*, size_t);
 
 //
 // Memory Mapped Files (MF)
@@ -145,54 +84,21 @@ MS_INVALIDATE (MF|SIO)
 int msync(void*, size_t, int); (MF|SIO)
 */
 
-version( linux )
+enum MAP_SHARED     = 0x01;
+enum MAP_PRIVATE    = 0x02;
+enum MAP_FIXED      = 0x10;
+enum MAP_ANON       = 0x20; // non-standard
+
+enum MAP_FAILED     = cast(void*) -1;
+
+enum
 {
-    enum MAP_SHARED     = 0x01;
-    enum MAP_PRIVATE    = 0x02;
-    enum MAP_FIXED      = 0x10;
-    enum MAP_ANON       = 0x20; // non-standard
-
-    enum MAP_FAILED     = cast(void*) -1;
-
-    enum
-    {
-        MS_ASYNC         = 1,
-        MS_SYNC          = 4,
-        MS_INVALIDATE    = 2
-    }
-
-    int msync(void*, size_t, int);
+    MS_ASYNC         = 1,
+    MS_SYNC          = 4,
+    MS_INVALIDATE    = 2
 }
-else version( OSX )
-{
-    enum MAP_SHARED     = 0x0001;
-    enum MAP_PRIVATE    = 0x0002;
-    enum MAP_FIXED      = 0x0010;
-    enum MAP_ANON       = 0x1000; // non-standard
 
-    enum MAP_FAILED     = cast(void*)-1;
-
-    enum MS_ASYNC       = 0x0001;
-    enum MS_INVALIDATE  = 0x0002;
-    enum MS_SYNC        = 0x0010;
-
-    int msync(void*, size_t, int);
-}
-else version( FreeBSD )
-{
-    enum MAP_SHARED     = 0x0001;
-    enum MAP_PRIVATE    = 0x0002;
-    enum MAP_FIXED      = 0x0010;
-    enum MAP_ANON       = 0x1000; // non-standard
-
-    enum MAP_FAILED     = cast(void*)-1;
-
-    enum MS_SYNC        = 0x0000;
-    enum MS_ASYNC       = 0x0001;
-    enum MS_INVALIDATE  = 0x0002;
-
-    int msync(void*, size_t, int);
-}
+int msync(void*, size_t, int);
 
 //
 // Process Memory Locking (ML)
@@ -205,31 +111,12 @@ int mlockall(int);
 int munlockall();
 */
 
-version( linux )
-{
-    enum MCL_CURRENT    = 1;
-    enum MCL_FUTURE     = 2;
+enum MCL_CURRENT    = 1;
+enum MCL_FUTURE     = 2;
 
-    int mlockall(int);
-    int munlockall();
+int mlockall(int);
+int munlockall();
 
-}
-else version( OSX )
-{
-    enum MCL_CURRENT    = 0x0001;
-    enum MCL_FUTURE     = 0x0002;
-
-    int mlockall(int);
-    int munlockall();
-}
-else version( FreeBSD )
-{
-    enum MCL_CURRENT    = 0x0001;
-    enum MCL_FUTURE     = 0x0002;
-
-    int mlockall(int);
-    int munlockall();
-}
 
 //
 // Range Memory Locking (MLR)
@@ -239,21 +126,8 @@ int mlock(in void*, size_t);
 int munlock(in void*, size_t);
 */
 
-version( linux )
-{
-    int mlock(in void*, size_t);
-    int munlock(in void*, size_t);
-}
-else version( OSX )
-{
-    int mlock(in void*, size_t);
-    int munlock(in void*, size_t);
-}
-else version( FreeBSD )
-{
-    int mlock(in void*, size_t);
-    int munlock(in void*, size_t);
-}
+int mlock(in void*, size_t);
+int munlock(in void*, size_t);
 
 //
 // Memory Protection (MPR)
@@ -262,14 +136,7 @@ else version( FreeBSD )
 int mprotect(void*, size_t, int);
 */
 
-version( OSX )
-{
-    int mprotect(void*, size_t, int);
-}
-else version( FreeBSD )
-{
-    int mprotect(void*, size_t, int);
-}
+int mprotect(void*, size_t, int);
 
 //
 // Shared Memory Objects (SHM)
@@ -278,23 +145,6 @@ else version( FreeBSD )
 int shm_open(in char*, int, mode_t);
 int shm_unlink(in char*);
 */
-
-version( linux )
-{
-    int shm_open(in char*, int, mode_t);
-    int shm_unlink(in char*);
-}
-else version( OSX )
-{
-    int shm_open(in char*, int, mode_t);
-    int shm_unlink(in char*);
-}
-else version( FreeBSD )
-{
-    int shm_open(in char*, int, mode_t);
-    int shm_unlink(in char*);
-}
-
 //
 // Typed Memory Objects (TYM)
 //

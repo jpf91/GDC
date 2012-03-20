@@ -19,11 +19,4 @@ extern (C):
 //alias typeof(int.sizeof)                    size_t;
 //alias typeof(cast(void*)0 - cast(void*)0)   ptrdiff_t;
 
-version( Windows )
-{
-    alias wchar wchar_t;
-}
-else
-{
-    alias dchar wchar_t;
-}
+alias char wchar_t; //WTF Android?

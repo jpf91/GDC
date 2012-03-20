@@ -14,6 +14,19 @@
  */
 module core.stdc.errno;
 
+/+
+/**
+ * Bionic specific
+ */
+
+/* internal function that should *only* be called from system calls */
+/* use errno = xxxx instead in C code                               */
+extern int    __set_errno(int  error);
+
+/* internal function returning the address of the thread-specific errno */
+extern volatile int*   __errno(void);
++/
+
 extern (C) int getErrno();      // for internal use
 extern (C) int setErrno(int);   // for internal use
 
@@ -23,49 +36,12 @@ extern (C) int setErrno(int);   // for internal use
 extern (C):
 nothrow:
 
-version( Windows )
-{
-    enum EPERM              = 1;        // Operation not permitted
-    enum ENOENT             = 2;        // No such file or directory
-    enum ESRCH              = 3;        // No such process
-    enum EINTR              = 4;        // Interrupted system call
-    enum EIO                = 5;        // I/O error
-    enum ENXIO              = 6;        // No such device or address
-    enum E2BIG              = 7;        // Argument list too long
-    enum ENOEXEC            = 8;        // Exec format error
-    enum EBADF              = 9;        // Bad file number
-    enum ECHILD             = 10;       // No child processes
-    enum EAGAIN             = 11;       // Try again
-    enum ENOMEM             = 12;       // Out of memory
-    enum EACCES             = 13;       // Permission denied
-    enum EFAULT             = 14;       // Bad address
-    enum EBUSY              = 16;       // Device or resource busy
-    enum EEXIST             = 17;       // File exists
-    enum EXDEV              = 18;       // Cross-device link
-    enum ENODEV             = 19;       // No such device
-    enum ENOTDIR            = 20;       // Not a directory
-    enum EISDIR             = 21;       // Is a directory
-    enum EINVAL             = 22;       // Invalid argument
-    enum ENFILE             = 23;       // File table overflow
-    enum EMFILE             = 24;       // Too many open files
-    enum ENOTTY             = 25;       // Not a typewriter
-    enum EFBIG              = 27;       // File too large
-    enum ENOSPC             = 28;       // No space left on device
-    enum ESPIPE             = 29;       // Illegal seek
-    enum EROFS              = 30;       // Read-only file system
-    enum EMLINK             = 31;       // Too many links
-    enum EPIPE              = 32;       // Broken pipe
-    enum EDOM               = 33;       // Math argument out of domain of func
-    enum ERANGE             = 34;       // Math result not representable
-    enum EDEADLK            = 36;       // Resource deadlock would occur
-    enum ENAMETOOLONG       = 38;       // File name too long
-    enum ENOLCK             = 39;       // No record locks available
-    enum ENOSYS             = 40;       // Function not implemented
-    enum ENOTEMPTY          = 41;       // Directory not empty
-    enum EILSEQ             = 42;       // Illegal byte sequence
-    enum EDEADLOCK          = EDEADLK;
-}
-else version( linux )
+/*
+ * TODO: this does in theory not depend on the used C library, only on OS
+ * (at least for linux. Is this true for other OS?)
+ */
+
+version(linux)
 {
     enum EPERM              = 1;        // Operation not permitted
     enum ENOENT             = 2;        // No such file or directory
@@ -198,182 +174,4 @@ else version( linux )
     enum EKEYREJECTED       = 129;      // Key was rejected by service
     enum EOWNERDEAD         = 130;      // Owner died
     enum ENOTRECOVERABLE    = 131;      // State not recoverable
-}
-else version( OSX )
-{
-    enum EPERM              = 1;        // Operation not permitted
-    enum ENOENT             = 2;        // No such file or directory
-    enum ESRCH              = 3;        // No such process
-    enum EINTR              = 4;        // Interrupted system call
-    enum EIO                = 5;        // Input/output error
-    enum ENXIO              = 6;        // Device not configured
-    enum E2BIG              = 7;        // Argument list too long
-    enum ENOEXEC            = 8;        // Exec format error
-    enum EBADF              = 9;        // Bad file descriptor
-    enum ECHILD             = 10;       // No child processes
-    enum EDEADLK            = 11;       // Resource deadlock avoided
-    enum ENOMEM             = 12;       // Cannot allocate memory
-    enum EACCES             = 13;       // Permission denied
-    enum EFAULT             = 14;       // Bad address
-    enum EBUSY              = 16;       // Device busy
-    enum EEXIST             = 17;       // File exists
-    enum EXDEV              = 18;       // Cross-device link
-    enum ENODEV             = 19;       // Operation not supported by device
-    enum ENOTDIR            = 20;       // Not a directory
-    enum EISDIR             = 21;       // Is a directory
-    enum EINVAL             = 22;       // Invalid argument
-    enum ENFILE             = 23;       // Too many open files in system
-    enum EMFILE             = 24;       // Too many open files
-    enum ENOTTY             = 25;       // Inappropriate ioctl for device
-    enum ETXTBSY            = 26;       // Text file busy
-    enum EFBIG              = 27;       // File too large
-    enum ENOSPC             = 28;       // No space left on device
-    enum ESPIPE             = 29;       // Illegal seek
-    enum EROFS              = 30;       // Read-only file system
-    enum EMLINK             = 31;       // Too many links
-    enum EPIPE              = 32;       // Broken pipe
-    enum EDOM               = 33;       // Numerical argument out of domain
-    enum ERANGE             = 34;       // Result too large
-    enum EAGAIN             = 35;       // Resource temporarily unavailable
-    enum EWOULDBLOCK        = EAGAIN;   // Operation would block
-    enum EINPROGRESS        = 36;       // Operation now in progress
-    enum EALREADY           = 37;       // Operation already in progress
-    enum ENOTSOCK           = 38;       // Socket operation on non-socket
-    enum EDESTADDRREQ       = 39;       // Destination address required
-    enum EMSGSIZE           = 40;       // Message too long
-    enum EPROTOTYPE         = 41;       // Protocol wrong type for socket
-    enum ENOPROTOOPT        = 42;       // Protocol not available
-    enum EPROTONOSUPPORT    = 43;       // Protocol not supported
-    enum ENOTSUP            = 45;       // Operation not supported
-    enum EOPNOTSUPP         = ENOTSUP;  // Operation not supported on socket
-    enum EAFNOSUPPORT       = 47;       // Address family not supported by protocol family
-    enum EADDRINUSE         = 48;       // Address already in use
-    enum EADDRNOTAVAIL      = 49;       // Can't assign requested address
-    enum ENETDOWN           = 50;       // Network is down
-    enum ENETUNREACH        = 51;       // Network is unreachable
-    enum ENETRESET          = 52;       // Network dropped connection on reset
-    enum ECONNABORTED       = 53;       // Software caused connection abort
-    enum ECONNRESET         = 54;       // Connection reset by peer
-    enum ENOBUFS            = 55;       // No buffer space available
-    enum EISCONN            = 56;       // Socket is already connected
-    enum ENOTCONN           = 57;       // Socket is not connected
-    enum ETIMEDOUT          = 60;       // Operation timed out
-    enum ECONNREFUSED       = 61;       // Connection refused
-    enum ELOOP              = 62;       // Too many levels of symbolic links
-    enum ENAMETOOLONG       = 63;       // File name too long
-    enum EHOSTUNREACH       = 65;       // No route to host
-    enum ENOTEMPTY          = 66;       // Directory not empty
-    enum EDQUOT             = 69;       // Disc quota exceeded
-    enum ESTALE             = 70;       // Stale NFS file handle
-    enum ENOLCK             = 77;       // No locks available
-    enum ENOSYS             = 78;       // Function not implemented
-    enum EOVERFLOW          = 84;       // Value too large to be stored in data type
-    enum ECANCELED          = 89;       // Operation canceled
-    enum EIDRM              = 90;       // Identifier removed
-    enum ENOMSG             = 91;       // No message of desired type
-    enum EILSEQ             = 92;       // Illegal byte sequence
-    enum EBADMSG            = 94;       // Bad message
-    enum EMULTIHOP          = 95;       // Reserved
-    enum ENODATA            = 96;       // No message available on STREAM
-    enum ENOLINK            = 97;       // Reserved
-    enum ENOSR              = 98;       // No STREAM resources
-    enum ENOSTR             = 99;       // Not a STREAM
-    enum EPROTO             = 100;      // Protocol error
-    enum ETIME              = 101;      // STREAM ioctl timeout
-    enum ELAST              = 101;      // Must be equal largest errno
-}
-else version( FreeBSD )
-{
-    enum EPERM              = 1;        // Operation not permitted
-    enum ENOENT             = 2;        // No such file or directory
-    enum ESRCH              = 3;        // No such process
-    enum EINTR              = 4;        // Interrupted system call
-    enum EIO                = 5;        // Input/output error
-    enum ENXIO              = 6;        // Device not configured
-    enum E2BIG              = 7;        // Argument list too long
-    enum ENOEXEC            = 8;        // Exec format error
-    enum EBADF              = 9;        // Bad file descriptor
-    enum ECHILD             = 10;       // No child processes
-    enum EDEADLK            = 11;       // Resource deadlock avoided
-    enum ENOMEM             = 12;       // Cannot allocate memory
-    enum EACCES             = 13;       // Permission denied
-    enum EFAULT             = 14;       // Bad address
-    enum ENOTBLK            = 15;       // Block device required
-    enum EBUSY              = 16;       // Device busy
-    enum EEXIST             = 17;       // File exists
-    enum EXDEV              = 18;       // Cross-device link
-    enum ENODEV             = 19;       // Operation not supported by device
-    enum ENOTDIR            = 20;       // Not a directory
-    enum EISDIR             = 21;       // Is a directory
-    enum EINVAL             = 22;       // Invalid argument
-    enum ENFILE             = 23;       // Too many open files in system
-    enum EMFILE             = 24;       // Too many open files
-    enum ENOTTY             = 25;       // Inappropriate ioctl for device
-    enum ETXTBSY            = 26;       // Text file busy
-    enum EFBIG              = 27;       // File too large
-    enum ENOSPC             = 28;       // No space left on device
-    enum ESPIPE             = 29;       // Illegal seek
-    enum EROFS              = 30;       // Read-only file system
-    enum EMLINK             = 31;       // Too many links
-    enum EPIPE              = 32;       // Broken pipe
-    enum EDOM               = 33;       // Numerical argument out of domain
-    enum ERANGE             = 34;       // Result too large
-    enum EAGAIN             = 35;       // Resource temporarily unavailable
-    enum EWOULDBLOCK        = EAGAIN;   // Operation would block
-    enum EINPROGRESS        = 36;       // Operation now in progress
-    enum EALREADY           = 37;       // Operation already in progress
-    enum ENOTSOCK           = 38;       // Socket operation on non-socket
-    enum EDESTADDRREQ       = 39;       // Destination address required
-    enum EMSGSIZE           = 40;       // Message too long
-    enum EPROTOTYPE         = 41;       // Protocol wrong type for socket
-    enum ENOPROTOOPT        = 42;       // Protocol not available
-    enum EPROTONOSUPPORT    = 43;       // Protocol not supported
-    enum ENOTSUP            = 45;       // Operation not supported
-    enum EOPNOTSUPP         = ENOTSUP;  // Operation not supported on socket
-    enum EAFNOSUPPORT       = 47;       // Address family not supported by protocol family
-    enum EADDRINUSE         = 48;       // Address already in use
-    enum EADDRNOTAVAIL      = 49;       // Can't assign requested address
-    enum ENETDOWN           = 50;       // Network is down
-    enum ENETUNREACH        = 51;       // Network is unreachable
-    enum ENETRESET          = 52;       // Network dropped connection on reset
-    enum ECONNABORTED       = 53;       // Software caused connection abort
-    enum ECONNRESET         = 54;       // Connection reset by peer
-    enum ENOBUFS            = 55;       // No buffer space available
-    enum EISCONN            = 56;       // Socket is already connected
-    enum ENOTCONN           = 57;       // Socket is not connected
-    enum ESHUTDOWN          = 58;       // Can't send after socket shutdown
-    enum ETOOMANYREFS       = 59;       // Too many refrences; can't splice
-    enum ETIMEDOUT          = 60;       // Operation timed out
-    enum ECONNREFUSED       = 61;       // Connection refused
-    enum ELOOP              = 62;       // Too many levels of symbolic links
-    enum ENAMETOOLONG       = 63;       // File name too long
-    enum EHOSTUNREACH       = 65;       // No route to host
-    enum ENOTEMPTY          = 66;       // Directory not empty
-    enum EPROCLIM           = 67;       // Too many processes
-    enum EUSERS             = 68;       // Too many users
-    enum EDQUOT             = 69;       // Disc quota exceeded
-    enum ESTALE             = 70;       // Stale NFS file handle
-    enum EREMOTE            = 71;       // Too many levels of remote in path
-    enum EBADRPC            = 72;       // RPC struct is bad
-    enum ERPCMISMATCH       = 73;       // RPC version wrong
-    enum EPROGUNAVAIL       = 74;       // RPC prog. not avail
-    enum EPROGMISMATCH      = 75;       // Program version wrong
-    enum EPROCUNAVAIL       = 76;       // Bad procedure for program
-    enum ENOLCK             = 77;       // No locks available
-    enum ENOSYS             = 78;       // Function not implemented
-    enum EFTYPE             = 79;       // Inappropriate file type or format
-    enum EAUTH              = 80;       // Authentication error
-    enum ENEEDAUTH          = 81;       // Need authenticator
-    enum EIDRM              = 82;       // Itendifier removed
-    enum ENOMSG             = 83;       // No message of desired type
-    enum EOVERFLOW          = 84;       // Value too large to be stored in data type
-    enum ECANCELED          = 85;       // Operation canceled
-    enum EILSEQ             = 86;       // Illegal byte sequence
-    enum ENOATTR            = 87;       // Attribute not found
-    enum EDOOFUS            = 88;       // Programming error
-    enum EBADMSG            = 89;       // Bad message
-    enum EMULTIHOP          = 90;       // Multihop attempted
-    enum ENOLINK            = 91;       // Link has been severed
-    enum EPROTO             = 92;       // Protocol error
-    enum ELAST              = 92;       // Must be equal largest errno
 }

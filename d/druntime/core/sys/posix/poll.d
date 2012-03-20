@@ -45,98 +45,27 @@ POLLNVAL
 int poll(pollfd[], nfds_t, int);
 */
 
-version( linux )
+struct pollfd
 {
-    struct pollfd
-    {
-        int     fd;
-        short   events;
-        short   revents;
-    }
-
-    alias c_ulong nfds_t;
-
-    enum
-    {
-        POLLIN      = 0x001,
-        POLLRDNORM  = 0x040,
-        POLLRDBAND  = 0x080,
-        POLLPRI     = 0x002,
-        POLLOUT     = 0x004,
-        POLLWRNORM  = 0x100,
-        POLLWRBAND  = 0x200,
-        POLLERR     = 0x008,
-        POLLHUP     = 0x010,
-        POLLNVAL    = 0x020,
-    }
-
-    int poll(pollfd*, nfds_t, int);
+    int     fd;
+    short   events;
+    short   revents;
 }
-else version( OSX )
+
+alias uint nfds_t;
+
+enum
 {
-    struct pollfd
-    {
-        int     fd;
-        short   events;
-        short   revents;
-    };
-
-    alias uint nfds_t;
-
-    enum
-    {
-        POLLIN      = 0x0001,
-        POLLPRI     = 0x0002,
-        POLLOUT     = 0x0004,
-        POLLRDNORM  = 0x0040,
-        POLLWRNORM  = POLLOUT,
-        POLLRDBAND  = 0x0080,
-        POLLWRBAND  = 0x0100,
-        POLLEXTEND  = 0x0200,
-        POLLATTRIB  = 0x0400,
-        POLLNLINK   = 0x0800,
-        POLLWRITE   = 0x1000,
-        POLLERR     = 0x0008,
-        POLLHUP     = 0x0010,
-        POLLNVAL    = 0x0020,
-
-        POLLSTANDARD = (POLLIN|POLLPRI|POLLOUT|POLLRDNORM|POLLRDBAND|
-                        POLLWRBAND|POLLERR|POLLHUP|POLLNVAL)
-    }
-
-    int poll(pollfd*, nfds_t, int);
+    POLLIN      = 0x001,
+    POLLRDNORM  = 0x040,
+    POLLRDBAND  = 0x080,
+    POLLPRI     = 0x002,
+    POLLOUT     = 0x004,
+    POLLWRNORM  = 0x100,
+    POLLWRBAND  = 0x200,
+    POLLERR     = 0x008,
+    POLLHUP     = 0x010,
+    POLLNVAL    = 0x020,
 }
-else version( FreeBSD )
-{
-    alias uint nfds_t;
 
-    struct pollfd
-    {
-        int     fd;
-        short   events;
-        short   revents;
-    };
-
-    enum
-    {
-        POLLIN      = 0x0001,
-        POLLPRI     = 0x0002,
-        POLLOUT     = 0x0004,
-        POLLRDNORM  = 0x0040,
-        POLLWRNORM  = POLLOUT,
-        POLLRDBAND  = 0x0080,
-        POLLWRBAND  = 0x0100,
-        //POLLEXTEND  = 0x0200,
-        //POLLATTRIB  = 0x0400,
-        //POLLNLINK   = 0x0800,
-        //POLLWRITE   = 0x1000,
-        POLLERR     = 0x0008,
-        POLLHUP     = 0x0010,
-        POLLNVAL    = 0x0020,
-
-        POLLSTANDARD = (POLLIN|POLLPRI|POLLOUT|POLLRDNORM|POLLRDBAND|
-        POLLWRBAND|POLLERR|POLLHUP|POLLNVAL)
-    }
-
-    int poll(pollfd*, nfds_t, int);
-}
+int poll(pollfd*, nfds_t, c_long);

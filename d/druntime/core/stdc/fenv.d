@@ -16,115 +16,28 @@ module core.stdc.fenv;
 
 extern (C):
 
-version( Windows )
-{
-    struct fenv_t
-    {
-        ushort    status;
-        ushort    control;
-        ushort    round;
-        ushort[2] reserved;
-    }
-
-    alias int fexcept_t;
-}
-else version( linux )
-{
-    struct fenv_t
-    {
-        ushort __control_word;
-        ushort __unused1;
-        ushort __status_word;
-        ushort __unused2;
-        ushort __tags;
-        ushort __unused3;
-        uint   __eip;
-        ushort __cs_selector;
-        ushort __opcode;
-        uint   __data_offset;
-        ushort __data_selector;
-        ushort __unused5;
-    }
-
-    alias int fexcept_t;
-}
-else version ( OSX )
-{
-    version ( BigEndian )
-    {
-        alias uint fenv_t;
-        alias uint fexcept_t;
-    }
-    version ( LittleEndian )
-    {
-        struct fenv_t
-        {
-            ushort  __control;
-            ushort  __status;
-            uint    __mxcsr;
-            byte[8] __reserved;
-        }
-
-        alias ushort fexcept_t;
-    }
-}
-else version ( FreeBSD )
-{
-    struct fenv_t
-    {
-        ushort __control;
-        ushort __mxcsr_hi;
-        ushort __status;
-        ushort __mxcsr_lo;
-        uint __tag;
-        byte[16] __other;
-    }
-
-    alias ushort fexcept_t;
-}
-else
-{
-    static assert( false, "Unsupported platform" );
-}
+alias uint fenv_t;
+alias uint fexcept_t;
 
 enum
 {
-    FE_INVALID      = 1,
-    FE_DENORMAL     = 2, // non-standard
-    FE_DIVBYZERO    = 4,
-    FE_OVERFLOW     = 8,
-    FE_UNDERFLOW    = 0x10,
-    FE_INEXACT      = 0x20,
-    FE_ALL_EXCEPT   = 0x3F,
-    FE_TONEAREST    = 0,
-    FE_UPWARD       = 0x800,
-    FE_DOWNWARD     = 0x400,
-    FE_TOWARDZERO   = 0xC00,
+    FE_INVALID      = 0x0001,
+    FE_DIVBYZERO    = 0x0002,
+    FE_OVERFLOW     = 0x0004,
+    FE_UNDERFLOW    = 0x0008,
+    FE_INEXACT      = 0x0010,
+    FE_ALL_EXCEPT   = (FE_DIVBYZERO | FE_INEXACT | FE_INVALID
+                      | FE_OVERFLOW | FE_UNDERFLOW),
+    FE_TONEAREST    = 0x0000,
+    FE_TOWARDZERO   = 0x0001,
+    FE_UPWARD       = 0x0002,
+    FE_DOWNWARD     = 0x0003,
+    _ROUND_MASK     = (FE_TONEAREST | FE_DOWNWARD | FE_UPWARD | FE_TOWARDZERO)
 }
+pragma(msg, "FE_DENORMAL not available on this platform!");
 
-version( Windows )
-{
-    private extern fenv_t _FE_DFL_ENV;
-    fenv_t* FE_DFL_ENV = &_FE_DFL_ENV;
-}
-else version( linux )
-{
-    fenv_t* FE_DFL_ENV = cast(fenv_t*)(-1);
-}
-else version( OSX )
-{
-    private extern fenv_t _FE_DFL_ENV;
-    fenv_t* FE_DFL_ENV = &_FE_DFL_ENV;
-}
-else version( FreeBSD )
-{
-    private extern const fenv_t __fe_dfl_env;
-    const fenv_t* FE_DFL_ENV = &__fe_dfl_env;
-}
-else
-{
-    static assert( false, "Unsupported platform" );
-}
+private extern(C) const fenv_t __fe_dfl_env;
+const fenv_t* FE_DFL_ENV = &__fe_dfl_env;
 
 void feraiseexcept(int excepts);
 void feclearexcept(int excepts);
@@ -135,9 +48,14 @@ int feholdexcept(fenv_t* envp);
 void fegetexceptflag(fexcept_t* flagp, int excepts);
 void fesetexceptflag(in fexcept_t* flagp, int excepts);
 
+/*
+ * Apparently, the rounding mode is specified as part of the
+ * instruction format on ARM, so the dynamic rounding mode is
+ * indeterminate.  Some FPUs may differ.
+ */
 int fegetround();
 int fesetround(int round);
 
-void fegetenv(fenv_t* envp);
-void fesetenv(in fenv_t* envp);
-void feupdateenv(in fenv_t* envp);
+int fegetenv(fenv_t* envp);
+int fesetenv(in fenv_t* envp);
+int feupdateenv(in fenv_t* envp);

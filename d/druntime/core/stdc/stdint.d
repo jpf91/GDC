@@ -72,16 +72,6 @@ version( GNU )
     alias __builtin_pointer_int  intptr_t;
     alias __builtin_pointer_uint uintptr_t;
 }
-else version( D_LP64 )
-{
-    alias long  intptr_t;
-    alias ulong uintptr_t;
-}
-else
-{
-    alias int   intptr_t;
-    alias uint  uintptr_t;
-}
 
 alias long      intmax_t;
 alias ulong     uintmax_t;

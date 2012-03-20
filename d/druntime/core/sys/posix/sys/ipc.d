@@ -55,51 +55,7 @@ version( linux )
         uid_t   cuid;
         gid_t   cgid;
         ushort  mode;
-        ushort  __pad1;
         ushort  __seq;
-        ushort  __pad2;
-        c_ulong __unused1;
-        c_ulong __unused2;
-    }
-
-    enum IPC_CREAT      = 01000;
-    enum IPC_EXCL       = 02000;
-    enum IPC_NOWAIT     = 04000;
-
-    enum key_t IPC_PRIVATE = 0;
-
-    enum IPC_RMID       = 0;
-    enum IPC_SET        = 1;
-    enum IPC_STAT       = 2;
-
-    key_t ftok(in char*, int);
-}
-else version( OSX )
-{
-
-}
-else version( FreeBSD )
-{
-    struct ipc_perm_old // <= FreeBSD7
-    {
-        ushort cuid;
-        ushort cguid;
-        ushort uid;
-        ushort gid;
-        ushort mode;
-        ushort seq;
-        key_t key;
-    }
-
-    struct ipc_perm
-    {
-        uid_t   cuid;
-        gid_t   cgid;
-        uid_t   uid;
-        gid_t   gid;
-        mode_t  mode;
-        ushort  seq;
-        key_t   key;
     }
 
     enum IPC_CREAT      = 01000;

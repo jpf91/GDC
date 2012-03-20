@@ -47,176 +47,51 @@ int  pselect(int, fd_set*, fd_set*, fd_set*, in timespec*, in sigset_t*);
 int  select(int, fd_set*, fd_set*, fd_set*, timeval*);
 */
 
-version( linux )
+private
 {
-    private
+    alias c_ulong __fd_mask;
+    enum __NFDBITS = __fd_mask.sizeof * 8;
+
+    extern (D) auto __FDELT( int d )
     {
-        alias c_long __fd_mask;
-        enum uint __NFDBITS = 8 * __fd_mask.sizeof;
-
-        extern (D) auto __FDELT( int d )
-        {
-            return d / __NFDBITS;
-        }
-
-        extern (D) auto __FDMASK( int d )
-        {
-            return cast(__fd_mask) 1 << ( d % __NFDBITS );
-        }
+        return d / __NFDBITS;
     }
 
-    enum FD_SETSIZE = 1024;
-
-    struct fd_set
+    extern (D) auto __FDMASK( int d )
     {
-        __fd_mask[FD_SETSIZE / __NFDBITS] fds_bits;
+        return cast(__fd_mask) 1 << ( d % __NFDBITS );
     }
-
-    extern (D) void FD_CLR( int fd, fd_set* fdset )
-    {
-        fdset.fds_bits[__FDELT( fd )] &= ~__FDMASK( fd );
-    }
-
-    extern (D) bool FD_ISSET( int fd, const(fd_set)* fdset )
-    {
-        return (fdset.fds_bits[__FDELT( fd )] & __FDMASK( fd )) != 0;
-    }
-
-    extern (D) void FD_SET( int fd, fd_set* fdset )
-    {
-        fdset.fds_bits[__FDELT( fd )] |= __FDMASK( fd );
-    }
-
-    extern (D) void FD_ZERO( fd_set* fdset )
-    {
-        fdset.fds_bits[0 .. $] = 0;
-    }
-
-    /+
-     + GNU ASM Implementation
-     +
-    # define __FD_ZERO(fdsp)                                \
-      do {                                                  \
-        int __d0, __d1;                                     \
-        __asm__ __volatile__ ("cld; rep; stosl"             \
-                  : "=c" (__d0), "=D" (__d1)                \
-                  : "a" (0), "0" (sizeof (fd_set)           \
-                          / sizeof (__fd_mask)),            \
-                    "1" (&__FDS_BITS (fdsp)[0])             \
-                  : "memory");                              \
-      } while (0)
-
-    # define __FD_SET(fd, fdsp)                             \
-      __asm__ __volatile__ ("btsl %1,%0"                    \
-                : "=m" (__FDS_BITS (fdsp)[__FDELT (fd)])    \
-                : "r" (((int) (fd)) % __NFDBITS)            \
-                : "cc","memory")
-    # define __FD_CLR(fd, fdsp)                             \
-      __asm__ __volatile__ ("btrl %1,%0"                    \
-                : "=m" (__FDS_BITS (fdsp)[__FDELT (fd)])    \
-                : "r" (((int) (fd)) % __NFDBITS)            \
-                : "cc","memory")
-    # define __FD_ISSET(fd, fdsp)                           \
-      (__extension__                                        \
-       ({register char __result;                            \
-         __asm__ __volatile__ ("btl %1,%2 ; setcb %b0"      \
-                   : "=q" (__result)                        \
-                   : "r" (((int) (fd)) % __NFDBITS),        \
-                     "m" (__FDS_BITS (fdsp)[__FDELT (fd)])  \
-                   : "cc");                                 \
-         __result; }))
-     +/
-
-    int pselect(int, fd_set*, fd_set*, fd_set*, in timespec*, in sigset_t*);
-    int select(int, fd_set*, fd_set*, fd_set*, timeval*);
 }
-else version( OSX )
+
+enum uint FD_SETSIZE = 1024;
+
+struct fd_set
 {
-    private
-    {
-        enum uint __DARWIN_NBBY    = 8;                            /* bits in a byte */
-        enum uint __DARWIN_NFDBITS = (int.sizeof * __DARWIN_NBBY); /* bits per mask */
-    }
-
-    enum FD_SETSIZE = 1024;
-
-    struct fd_set
-    {
-        int[(FD_SETSIZE + (__DARWIN_NFDBITS - 1)) / __DARWIN_NFDBITS] fds_bits;
-    }
-
-    extern (D) void FD_CLR( int fd, fd_set* fdset )
-    {
-        fdset.fds_bits[fd / __DARWIN_NFDBITS] &= ~(1 << (fd % __DARWIN_NFDBITS));
-    }
-
-    extern (D) bool FD_ISSET( int fd, const(fd_set)* fdset )
-    {
-        return (fdset.fds_bits[fd / __DARWIN_NFDBITS] & (1 << (fd % __DARWIN_NFDBITS))) != 0;
-    }
-
-    extern (D) void FD_SET( int fd, fd_set* fdset )
-    {
-        fdset.fds_bits[fd / __DARWIN_NFDBITS] |= 1 << (fd % __DARWIN_NFDBITS);
-    }
-
-    extern (D) void FD_ZERO( fd_set* fdset )
-    {
-        fdset.fds_bits[0 .. $] = 0;
-    }
-
-    int pselect(int, fd_set*, fd_set*, fd_set*, in timespec*, in sigset_t*);
-    int select(int, fd_set*, fd_set*, fd_set*, timeval*);
+    __fd_mask[FD_SETSIZE / __NFDBITS] fds_bits;
 }
-else version( FreeBSD )
+
+extern (D) void FD_CLR( int fd, fd_set* fdset )
 {
-    private
-    {
-        alias c_ulong __fd_mask;
-        enum _NFDBITS = __fd_mask.sizeof * 8;
-    }
-
-    enum uint FD_SETSIZE = 1024;
-
-    struct fd_set
-    {
-        __fd_mask __fds_bits[(FD_SETSIZE + (_NFDBITS - 1)) / _NFDBITS];
-    }
-
-    extern (D) __fd_mask __fdset_mask(uint n)
-    {
-        return cast(__fd_mask) 1 << (n % _NFDBITS);
-    }
-
-    extern (D) void FD_CLR( int n, fd_set* p )
-    {
-        p.__fds_bits[n / _NFDBITS] &= ~__fdset_mask(n);
-    }
-
-    extern (D) bool FD_ISSET( int n, const(fd_set)* p )
-    {
-        return (p.__fds_bits[n / _NFDBITS] & __fdset_mask(n)) != 0;
-    }
-
-    extern (D) void FD_SET( int n, fd_set* p )
-    {
-        p.__fds_bits[n / _NFDBITS] |= __fdset_mask(n);
-    }
-
-    extern (D) void FD_ZERO( fd_set* p )
-    {
-        fd_set *_p;
-        size_t _n;
-
-        _p = p;
-        _n = (FD_SETSIZE + (_NFDBITS - 1)) / _NFDBITS;
-        while (_n > 0)
-            _p.__fds_bits[--_n] = 0;
-    }
-
-    int pselect(int, fd_set*, fd_set*, fd_set*, in timespec*, in sigset_t*);
-    int select(int, fd_set*, fd_set*, fd_set*, timeval*);
+    fdset.fds_bits[__FDELT( fd )] &= ~__FDMASK( fd );
 }
+
+extern (D) bool FD_ISSET( int fd, const(fd_set)* fdset )
+{
+    return (fdset.fds_bits[__FDELT( fd )] & __FDMASK( fd )) != 0;
+}
+
+extern (D) void FD_SET( int fd, fd_set* fdset )
+{
+    fdset.fds_bits[__FDELT( fd )] |= __FDMASK( fd );
+}
+
+extern (D) void FD_ZERO( fd_set* fdset )
+{
+    fdset.fds_bits[0 .. $] = 0;
+}
+
+int pselect(int, fd_set*, fd_set*, fd_set*, in timespec*, in sigset_t*);
+int select(int, fd_set*, fd_set*, fd_set*, timeval*);
 
 unittest
 {

@@ -19,7 +19,7 @@ debug(trace) import core.stdc.stdio : printf;
 debug(info) import core.stdc.stdio : printf;
 import core.stdc.stdio : snprintf;
 import core.stdc.string : memmove;
-import core.stdc.stdlib : strtold;
+//import core.stdc.stdlib : strtold;
 
 
 private struct Demangle
@@ -371,6 +371,8 @@ private struct Demangle
 
     void parseReal()
     {
+        assert(false, "core.demangle.parseReal not implemented on Android (strtold missing)");
+        /+
         debug(trace) printf( "parseReal+\n" );
         debug(trace) scope(success) printf( "parseReal-\n" );
 
@@ -437,7 +439,7 @@ private struct Demangle
         val = strtold( tbuf.ptr, null );
         tlen = snprintf( tbuf.ptr, tbuf.length, "%#Lg", val );
         debug(info) printf( "converted (%.*s)\n", cast(int) tlen, tbuf.ptr );
-        put( tbuf[0 .. tlen] );
+        put( tbuf[0 .. tlen] );+/
     }
 
 

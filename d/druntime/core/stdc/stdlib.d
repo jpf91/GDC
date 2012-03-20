@@ -17,9 +17,6 @@ module core.stdc.stdlib;
 private import core.stdc.config;
 public import core.stdc.stddef; // for size_t, wchar_t
 
-version (GNU)
-    private import libc = gcc.config.libc;
-
 extern (C):
 nothrow:
 
@@ -31,8 +28,8 @@ struct div_t
 
 struct ldiv_t
 {
-    int quot,
-        rem;
+    c_long quot,
+           rem;
 }
 
 struct lldiv_t
@@ -45,13 +42,7 @@ enum EXIT_SUCCESS = 0;
 enum EXIT_FAILURE = 1;
 enum MB_CUR_MAX   = 1;
 
-version(Windows)      enum RAND_MAX = 0x7fff;
-else version(linux)   enum RAND_MAX = 0x7fffffff;
-else version(OSX)     enum RAND_MAX = 0x7fffffff;
-else version(FreeBSD) enum RAND_MAX = 0x7fffffff;
-else version(Solaris) enum RAND_MAX = 0x7fff;
-else version(GNU)     enum RAND_MAX = libc.RAND_MAX;
-else static assert( false, "Unsupported platform" );
+enum RAND_MAX = 0x7fffffff;
 
 double  atof(in char* nptr);
 int     atoi(in char* nptr);
@@ -60,7 +51,7 @@ long    atoll(in char* nptr);
 
 double  strtod(in char* nptr, char** endptr);
 float   strtof(in char* nptr, char** endptr);
-real    strtold(in char* nptr, char** endptr);
+//real    strtold(in char* nptr, char** endptr);
 c_long  strtol(in char* nptr, char** endptr, int base);
 long    strtoll(in char* nptr, char** endptr, int base);
 c_ulong strtoul(in char* nptr, char** endptr, int base);
@@ -77,7 +68,6 @@ void    free(void* ptr);
 void    abort();
 void    exit(int status);
 int     atexit(void function() func);
-void    _Exit(int status);
 
 char*   getenv(in char* name);
 int     system(in char* string);
@@ -93,17 +83,16 @@ div_t   div(int numer, int denom);
 ldiv_t  ldiv(c_long numer, c_long denom);
 lldiv_t lldiv(long numer, long denom);
 
+/* MISSING FROM BIONIC - ENABLED FOR STLPort and libstdc++-v3 */
+/+
 int     mblen(in char* s, size_t n);
 int     mbtowc(wchar_t* pwc, in char* s, size_t n);
 int     wctomb(char*s, wchar_t wc);
 size_t  mbstowcs(wchar_t* pwcs, in char* s, size_t n);
 size_t  wcstombs(char* s, in wchar_t* pwcs, size_t n);
++/
 
-version( DigitalMars )
-{
-    void* alloca(size_t size); // non-standard
-}
-else version( GNU )
+version( GNU )
 {
     private import gcc.builtins;
     alias gcc.builtins.__builtin_alloca alloca;

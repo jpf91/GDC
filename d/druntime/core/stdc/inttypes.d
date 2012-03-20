@@ -27,169 +27,169 @@ struct imaxdiv_t
 
 private alias immutable(char)* _cstr;
 
-enum _cstr PRId8            = "hhd";
-enum _cstr PRId16           = "hd";
-enum _cstr PRId32           = "ld";
+enum _cstr PRId8            = "d";
+enum _cstr PRId16           = "d";
+enum _cstr PRId32           = "d";
 enum _cstr PRId64           = "lld";
 
-enum _cstr PRIdLEAST8       = "hhd";
-enum _cstr PRIdLEAST16      = "hd";
-enum _cstr PRIdLEAST32      = "ld";
+enum _cstr PRIdLEAST8       = "d";
+enum _cstr PRIdLEAST16      = "d";
+enum _cstr PRIdLEAST32      = "d";
 enum _cstr PRIdLEAST64      = "lld";
 
-enum _cstr PRIdFAST8        = "hhd";
+enum _cstr PRIdFAST8        = "d";
 enum _cstr PRIdFAST16       = "d";
-enum _cstr PRIdFAST32       = "ld";
+enum _cstr PRIdFAST32       = "d";
 enum _cstr PRIdFAST64       = "lld";
 
-enum _cstr PRIi8            = "hhi";
-enum _cstr PRIi16           = "hi";
-enum _cstr PRIi32           = "li";
+enum _cstr PRIi8            = "i";
+enum _cstr PRIi16           = "i";
+enum _cstr PRIi32           = "i";
 enum _cstr PRIi64           = "lli";
 
-enum _cstr PRIiLEAST8       = "hhi";
-enum _cstr PRIiLEAST16      = "hi";
-enum _cstr PRIiLEAST32      = "li";
+enum _cstr PRIiLEAST8       = "i";
+enum _cstr PRIiLEAST16      = "i";
+enum _cstr PRIiLEAST32      = "i";
 enum _cstr PRIiLEAST64      = "lli";
 
-enum _cstr PRIiFAST8        = "hhi";
+enum _cstr PRIiFAST8        = "i";
 enum _cstr PRIiFAST16       = "i";
-enum _cstr PRIiFAST32       = "li";
+enum _cstr PRIiFAST32       = "i";
 enum _cstr PRIiFAST64       = "lli";
 
-enum _cstr PRIo8            = "hho";
-enum _cstr PRIo16           = "ho";
-enum _cstr PRIo32           = "lo";
+enum _cstr PRIo8            = "o";
+enum _cstr PRIo16           = "o";
+enum _cstr PRIo32           = "o";
 enum _cstr PRIo64           = "llo";
 
-enum _cstr PRIoLEAST8       = "hho";
-enum _cstr PRIoLEAST16      = "ho";
-enum _cstr PRIoLEAST32      = "lo";
+enum _cstr PRIoLEAST8       = "o";
+enum _cstr PRIoLEAST16      = "o";
+enum _cstr PRIoLEAST32      = "o";
 enum _cstr PRIoLEAST64      = "llo";
 
-enum _cstr PRIoFAST8        = "hho";
+enum _cstr PRIoFAST8        = "o";
 enum _cstr PRIoFAST16       = "o";
-enum _cstr PRIoFAST32       = "lo";
+enum _cstr PRIoFAST32       = "o";
 enum _cstr PRIoFAST64       = "llo";
 
-enum _cstr PRIu8            = "hhu";
-enum _cstr PRIu16           = "hu";
-enum _cstr PRIu32           = "lu";
+enum _cstr PRIu8            = "u";
+enum _cstr PRIu16           = "u";
+enum _cstr PRIu32           = "u";
 enum _cstr PRIu64           = "llu";
 
-enum _cstr PRIuLEAST8       = "hhu";
-enum _cstr PRIuLEAST16      = "hu";
-enum _cstr PRIuLEAST32      = "lu";
+enum _cstr PRIuLEAST8       = "u";
+enum _cstr PRIuLEAST16      = "u";
+enum _cstr PRIuLEAST32      = "u";
 enum _cstr PRIuLEAST64      = "llu";
 
-enum _cstr PRIuFAST8        = "hhu";
+enum _cstr PRIuFAST8        = "u";
 enum _cstr PRIuFAST16       = "u";
-enum _cstr PRIuFAST32       = "lu";
+enum _cstr PRIuFAST32       = "u";
 enum _cstr PRIuFAST64       = "llu";
 
-enum _cstr PRIx8            = "hhx";
-enum _cstr PRIx16           = "hx";
-enum _cstr PRIx32           = "lx";
+enum _cstr PRIx8            = "x";
+enum _cstr PRIx16           = "x";
+enum _cstr PRIx32           = "x";
 enum _cstr PRIx64           = "llx";
 
-enum _cstr PRIxLEAST8       = "hhx";
-enum _cstr PRIxLEAST16      = "hx";
-enum _cstr PRIxLEAST32      = "lx";
+enum _cstr PRIxLEAST8       = "x";
+enum _cstr PRIxLEAST16      = "x";
+enum _cstr PRIxLEAST32      = "x";
 enum _cstr PRIxLEAST64      = "llx";
 
-enum _cstr PRIxFAST8        = "hhx";
+enum _cstr PRIxFAST8        = "x";
 enum _cstr PRIxFAST16       = "x";
-enum _cstr PRIxFAST32       = "lx";
+enum _cstr PRIxFAST32       = "x";
 enum _cstr PRIxFAST64       = "llx";
 
-enum _cstr PRIX8            = "hhX";
-enum _cstr PRIX16           = "hX";
-enum _cstr PRIX32           = "lX";
+enum _cstr PRIX8            = "X";
+enum _cstr PRIX16           = "X";
+enum _cstr PRIX32           = "X";
 enum _cstr PRIX64           = "llX";
 
-enum _cstr PRIXLEAST8       = "hhX";
-enum _cstr PRIXLEAST16      = "hX";
-enum _cstr PRIXLEAST32      = "lX";
+enum _cstr PRIXLEAST8       = "X";
+enum _cstr PRIXLEAST16      = "X";
+enum _cstr PRIXLEAST32      = "X";
 enum _cstr PRIXLEAST64      = "llX";
 
-enum _cstr PRIXFAST8        = "hhX";
+enum _cstr PRIXFAST8        = "X";
 enum _cstr PRIXFAST16       = "X";
-enum _cstr PRIXFAST32       = "lX";
+enum _cstr PRIXFAST32       = "X";
 enum _cstr PRIXFAST64       = "llX";
 
 enum _cstr SCNd8            = "hhd";
 enum _cstr SCNd16           = "hd";
-enum _cstr SCNd32           = "ld";
+enum _cstr SCNd32           = "d";
 enum _cstr SCNd64           = "lld";
 
 enum _cstr SCNdLEAST8       = "hhd";
 enum _cstr SCNdLEAST16      = "hd";
-enum _cstr SCNdLEAST32      = "ld";
+enum _cstr SCNdLEAST32      = "d";
 enum _cstr SCNdLEAST64      = "lld";
 
 enum _cstr SCNdFAST8        = "hhd";
-enum _cstr SCNdFAST16       = "d";
-enum _cstr SCNdFAST32       = "ld";
+enum _cstr SCNdFAST16       = "hd";
+enum _cstr SCNdFAST32       = "d";
 enum _cstr SCNdFAST64       = "lld";
 
-enum _cstr SCNi8            = "hhd";
+enum _cstr SCNi8            = "hhi";
 enum _cstr SCNi16           = "hi";
-enum _cstr SCNi32           = "li";
+enum _cstr SCNi32           = "i";
 enum _cstr SCNi64           = "lli";
 
-enum _cstr SCNiLEAST8       = "hhd";
+enum _cstr SCNiLEAST8       = "hhi";
 enum _cstr SCNiLEAST16      = "hi";
-enum _cstr SCNiLEAST32      = "li";
+enum _cstr SCNiLEAST32      = "i";
 enum _cstr SCNiLEAST64      = "lli";
 
-enum _cstr SCNiFAST8        = "hhd";
-enum _cstr SCNiFAST16       = "i";
-enum _cstr SCNiFAST32       = "li";
+enum _cstr SCNiFAST8        = "hhi";
+enum _cstr SCNiFAST16       = "hi";
+enum _cstr SCNiFAST32       = "i";
 enum _cstr SCNiFAST64       = "lli";
 
-enum _cstr SCNo8            = "hhd";
+enum _cstr SCNo8            = "hho";
 enum _cstr SCNo16           = "ho";
-enum _cstr SCNo32           = "lo";
+enum _cstr SCNo32           = "o";
 enum _cstr SCNo64           = "llo";
 
-enum _cstr SCNoLEAST8       = "hhd";
+enum _cstr SCNoLEAST8       = "hho";
 enum _cstr SCNoLEAST16      = "ho";
-enum _cstr SCNoLEAST32      = "lo";
+enum _cstr SCNoLEAST32      = "o";
 enum _cstr SCNoLEAST64      = "llo";
 
-enum _cstr SCNoFAST8        = "hhd";
-enum _cstr SCNoFAST16       = "o";
-enum _cstr SCNoFAST32       = "lo";
+enum _cstr SCNoFAST8        = "hho";
+enum _cstr SCNoFAST16       = "ho";
+enum _cstr SCNoFAST32       = "o";
 enum _cstr SCNoFAST64       = "llo";
 
-enum _cstr SCNu8            = "hhd";
+enum _cstr SCNu8            = "hhu";
 enum _cstr SCNu16           = "hu";
-enum _cstr SCNu32           = "lu";
+enum _cstr SCNu32           = "u";
 enum _cstr SCNu64           = "llu";
 
-enum _cstr SCNuLEAST8       = "hhd";
+enum _cstr SCNuLEAST8       = "hhu";
 enum _cstr SCNuLEAST16      = "hu";
-enum _cstr SCNuLEAST32      = "lu";
+enum _cstr SCNuLEAST32      = "u";
 enum _cstr SCNuLEAST64      = "llu";
 
-enum _cstr SCNuFAST8        = "hhd";
-enum _cstr SCNuFAST16       = "u";
-enum _cstr SCNuFAST32       = "lu";
+enum _cstr SCNuFAST8        = "hhu";
+enum _cstr SCNuFAST16       = "hu";
+enum _cstr SCNuFAST32       = "u";
 enum _cstr SCNuFAST64       = "llu";
 
-enum _cstr SCNx8            = "hhd";
+enum _cstr SCNx8            = "hhx";
 enum _cstr SCNx16           = "hx";
-enum _cstr SCNx32           = "lx";
+enum _cstr SCNx32           = "x";
 enum _cstr SCNx64           = "llx";
 
-enum _cstr SCNxLEAST8       = "hhd";
+enum _cstr SCNxLEAST8       = "hhx";
 enum _cstr SCNxLEAST16      = "hx";
-enum _cstr SCNxLEAST32      = "lx";
+enum _cstr SCNxLEAST32      = "x";
 enum _cstr SCNxLEAST64      = "llx";
 
-enum _cstr SCNxFAST8        = "hhd";
-enum _cstr SCNxFAST16       = "x";
-enum _cstr SCNxFAST32       = "lx";
+enum _cstr SCNxFAST8        = "hhx";
+enum _cstr SCNxFAST16       = "hx";
+enum _cstr SCNxFAST32       = "x";
 enum _cstr SCNxFAST64       = "llx";
 
 version( D_LP64 )
@@ -253,5 +253,6 @@ intmax_t  imaxabs(intmax_t j);
 imaxdiv_t imaxdiv(intmax_t numer, intmax_t denom);
 intmax_t  strtoimax(in char* nptr, char** endptr, int base);
 uintmax_t strtoumax(in char* nptr, char** endptr, int base);
-intmax_t  wcstoimax(in wchar_t* nptr, wchar_t** endptr, int base);
-uintmax_t wcstoumax(in wchar_t* nptr, wchar_t** endptr, int base);
+//Not supported
+//intmax_t  wcstoimax(in wchar_t* nptr, wchar_t** endptr, int base);
+//uintmax_t wcstoumax(in wchar_t* nptr, wchar_t** endptr, int base);

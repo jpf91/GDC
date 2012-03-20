@@ -36,19 +36,6 @@ size_t strftime(char*, size_t, in char*, in tm*);
 time_t time(time_t*);
 */
 
-version( linux )
-{
-    time_t timegm(tm*); // non-standard
-}
-else version( OSX )
-{
-    time_t timegm(tm*); // non-standard
-}
-else version( FreeBSD )
-{
-    time_t timegm(tm*); // non-standard
-}
-
 //
 // C Extension (CX)
 // (defined in core.stdc.time)
@@ -82,22 +69,6 @@ CLOCK_MONOTONIC
 version( linux )
 {
     enum CLOCK_MONOTONIC        = 1;
-    enum CLOCK_MONOTONIC_RAW    = 4; // non-standard
-    enum CLOCK_MONOTONIC_COARSE = 6; // non-standard
-}
-else version (FreeBSD)
-{   // time.h
-    enum CLOCK_MONOTONIC         = 4;
-    enum CLOCK_MONOTONIC_PRECISE = 11;
-    enum CLOCK_MONOTONIC_FAST    = 12;
-}
-else version (OSX)
-{
-    // No CLOCK_MONOTONIC defined
-}
-else version (Windows)
-{
-    pragma(msg, "no Windows support for CLOCK_MONOTONIC");
 }
 else
 {
@@ -143,82 +114,38 @@ int timer_getoverrun(timer_t);
 int timer_settime(timer_t, int, in itimerspec*, itimerspec*);
 */
 
-version( linux )
+enum CLOCK_PROCESS_CPUTIME_ID = 2;
+enum CLOCK_THREAD_CPUTIME_ID  = 3;
+
+// NOTE: See above for why this is commented out.
+//
+//struct timespec
+//{
+//    time_t  tv_sec;
+//    c_long  tv_nsec;
+//}
+
+struct itimerspec
 {
-    enum CLOCK_PROCESS_CPUTIME_ID = 2;
-    enum CLOCK_THREAD_CPUTIME_ID  = 3;
-
-    // NOTE: See above for why this is commented out.
-    //
-    //struct timespec
-    //{
-    //    time_t  tv_sec;
-    //    c_long  tv_nsec;
-    //}
-
-    struct itimerspec
-    {
-        timespec it_interval;
-        timespec it_value;
-    }
-
-    enum CLOCK_REALTIME         = 0;
-    enum CLOCK_REALTIME_COARSE  = 5; // non-standard
-    enum TIMER_ABSTIME          = 0x01;
-
-    alias int clockid_t;
-    alias int timer_t;
-
-    int clock_getres(clockid_t, timespec*);
-    int clock_gettime(clockid_t, timespec*);
-    int clock_settime(clockid_t, in timespec*);
-    int nanosleep(in timespec*, timespec*);
-    int timer_create(clockid_t, sigevent*, timer_t*);
-    int timer_delete(timer_t);
-    int timer_gettime(timer_t, itimerspec*);
-    int timer_getoverrun(timer_t);
-    int timer_settime(timer_t, int, in itimerspec*, itimerspec*);
-}
-else version( OSX )
-{
-    int nanosleep(in timespec*, timespec*);
-}
-else version( FreeBSD )
-{
-    //enum CLOCK_PROCESS_CPUTIME_ID = ??;
-    enum CLOCK_THREAD_CPUTIME_ID  = 15;
-
-    // NOTE: See above for why this is commented out.
-    //
-    //struct timespec
-    //{
-    //    time_t  tv_sec;
-    //    c_long  tv_nsec;
-    //}
-
-    struct itimerspec
-    {
-        timespec it_interval;
-        timespec it_value;
-    }
-
-    enum CLOCK_REALTIME     = 0;
-    enum TIMER_ABSTIME      = 0x01;
-
-    alias int clockid_t; // <sys/_types.h>
-    alias int timer_t;
-
-    int clock_getres(clockid_t, timespec*);
-    int clock_gettime(clockid_t, timespec*);
-    int clock_settime(clockid_t, in timespec*);
-    int nanosleep(in timespec*, timespec*);
-    int timer_create(clockid_t, sigevent*, timer_t*);
-    int timer_delete(timer_t);
-    int timer_gettime(timer_t, itimerspec*);
-    int timer_getoverrun(timer_t);
-    int timer_settime(timer_t, int, in itimerspec*, itimerspec*);
+    timespec it_interval;
+    timespec it_value;
 }
 
+enum CLOCK_REALTIME         = 0;
+enum TIMER_ABSTIME          = 0x01;
+
+alias int clockid_t;
+alias int timer_t;
+
+int clock_getres(clockid_t, timespec*);
+int clock_gettime(clockid_t, timespec*);
+int clock_settime(clockid_t, in timespec*);
+int nanosleep(in timespec*, timespec*);
+int timer_create(clockid_t, sigevent*, timer_t*);
+int timer_delete(timer_t);
+int timer_gettime(timer_t, itimerspec*);
+int timer_getoverrun(timer_t);
+int timer_settime(timer_t, int, in itimerspec*, itimerspec*);
 
 //
 // Thread-Safe Functions (TSF)
@@ -230,27 +157,10 @@ tm*   gmtime_r(in time_t*, tm*);
 tm*   localtime_r(in time_t*, tm*);
 */
 
-version( linux )
-{
-    char* asctime_r(in tm*, char*);
-    char* ctime_r(in time_t*, char*);
-    tm*   gmtime_r(in time_t*, tm*);
-    tm*   localtime_r(in time_t*, tm*);
-}
-else version( OSX )
-{
-    char* asctime_r(in tm*, char*);
-    char* ctime_r(in time_t*, char*);
-    tm*   gmtime_r(in time_t*, tm*);
-    tm*   localtime_r(in time_t*, tm*);
-}
-else version( FreeBSD )
-{
-    char* asctime_r(in tm*, char*);
-    char* ctime_r(in time_t*, char*);
-    tm*   gmtime_r(in time_t*, tm*);
-    tm*   localtime_r(in time_t*, tm*);
-}
+char* asctime_r(in tm*, char*);
+char* ctime_r(in time_t*, char*);
+tm*   gmtime_r(in time_t*, tm*);
+tm*   localtime_r(in time_t*, tm*);
 
 //
 // XOpen (XSI)
@@ -264,33 +174,3 @@ int timezone;
 tm* getdate(in char*);
 char* strptime(in char*, in char*, tm*);
 */
-
-version( linux )
-{
-    extern __gshared int    daylight;
-    extern __gshared c_long timezone;
-
-    tm*   getdate(in char*);
-    char* strptime(in char*, in char*, tm*);
-}
-else version( OSX )
-{
-    extern __gshared c_long timezone;
-    extern __gshared int    daylight;
-
-    tm*   getdate(in char*);
-    char* strptime(in char*, in char*, tm*);
-}
-else version( FreeBSD )
-{
-    //tm*   getdate(in char*);
-    char* strptime(in char*, in char*, tm*);
-}
-else version( Solaris )
-{
-    extern __gshared c_long timezone;
-
-    //tm*   getdate(in char*);
-    char* strptime(in char*, in char*, tm*);
-}
-
