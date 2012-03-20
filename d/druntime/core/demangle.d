@@ -371,8 +371,6 @@ private struct Demangle
 
     void parseReal()
     {
-        assert(false, "core.demangle.parseReal not implemented on Android (strtold missing)");
-        /+
         debug(trace) printf( "parseReal+\n" );
         debug(trace) scope(success) printf( "parseReal-\n" );
 
@@ -439,7 +437,7 @@ private struct Demangle
         val = strtold( tbuf.ptr, null );
         tlen = snprintf( tbuf.ptr, tbuf.length, "%#Lg", val );
         debug(info) printf( "converted (%.*s)\n", cast(int) tlen, tbuf.ptr );
-        put( tbuf[0 .. tlen] );+/
+        put( tbuf[0 .. tlen] );
     }
 
 

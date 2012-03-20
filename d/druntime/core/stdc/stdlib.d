@@ -51,7 +51,12 @@ long    atoll(in char* nptr);
 
 double  strtod(in char* nptr, char** endptr);
 float   strtof(in char* nptr, char** endptr);
+/**
+* FreeBSD is missing strtold, so for the symbols that are missing,
+* we use the lower resolution double versions for the long double functions.
+*/
 //real    strtold(in char* nptr, char** endptr);
+@trusted pure real strtold(in char* nptr, char** endptr) { return strtod(nptr, endptr); }
 c_long  strtol(in char* nptr, char** endptr, int base);
 long    strtoll(in char* nptr, char** endptr, int base);
 c_ulong strtoul(in char* nptr, char** endptr, int base);
