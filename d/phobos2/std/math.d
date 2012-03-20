@@ -2418,7 +2418,7 @@ private:
             }
             return cont;
         }
-        else
+        /+else
         version (ARM)
         {
             short cont;
@@ -2430,7 +2430,7 @@ private:
                 ;
             }
             return cont;
-        }
+        }+/
         else
             assert(0, "Not yet supported");
     }
@@ -2445,7 +2445,7 @@ private:
                  fldcw newState;
             }
         }
-        else version (ARM)
+        /+else version (ARM)
         {
             asm
             {
@@ -2455,7 +2455,7 @@ private:
                 [cw] "r" newState
                 ;
             }
-        }
+        }+/
         else
             assert(0, "Not yet supported");
     }
