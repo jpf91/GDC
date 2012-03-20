@@ -172,14 +172,14 @@ if (x3_compile_test())
     x3_out_type("pthread_mutexattr_t");
     // other fields?
     x3_out_struct("struct sched_param", NULL, "i:sched_priority", NULL);
-    //x3_push_optional(1);
+    x3_push_optional(1);
     x3_out_type_ex("pthread_barrier_t", NULL, X3_STRUCT_FALLBACK);
     x3_out_type_ex("pthread_barrierattr_t", NULL, X3_STRUCT_FALLBACK);
     x3_out_type_ex("pthread_rwlock_t", NULL, X3_STRUCT_FALLBACK);
     x3_out_type_ex("pthread_rwlockattr_t", NULL, X3_STRUCT_FALLBACK);
     x3_out_type_ex("pthread_spinlock_t", NULL, X3_STRUCT_FALLBACK);
-    //x3_pop_optional();
     x3_out_enum(NULL, NULL, "^PTHREAD_CANCEL_.*", NULL);
+    x3_pop_optional();
 
 }
 x3_gi_pop_header();
