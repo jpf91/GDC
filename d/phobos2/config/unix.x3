@@ -292,7 +292,7 @@ x3_gi_pop_headers(pop_count);
 
 x3_gi_push_header("<pwd.h>");
 x3_out_struct("struct passwd", NULL, "pw_name", "pw_passwd", "i:pw_uid", "i:pw_gid",
-    "pw_gecos", "pw_dir", "pw_shell",
+    "o:pw_gecos", "pw_dir", "pw_shell",
     "o:pw_change", "o:pw_class", "o:pw_expire", NULL);
 x3_gi_pop_header();
 
