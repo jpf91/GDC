@@ -590,6 +590,11 @@ file handle. Throws on error.
             errnoEnforce(fseek(p.handle, to!int(offset), origin) == 0,
                     "Could not seek in file `"~p.name~"'");
         }
+        else version(Android)
+        {
+            errnoEnforce(core.stdc.stdio.fseek(p.handle, to!int(offset), origin) == 0,
+                    "Could not seek in file `"~p.name~"'");
+        }
         else
         {
             //static assert(off_t.sizeof == 8);
@@ -1174,7 +1179,14 @@ $(D Range) that locks the file and allows fast writing to it.
         {
             enforce(f.p && f.p.handle);
             fps = f.p.handle;
-            orientation = fwide(fps, 0);
+            version(Android)
+            {
+                orientation = 0;
+            }
+            else
+            {
+                orientation = fwide(fps, 0);
+            }
             FLOCK(fps);
             handle = cast(_iobuf*)fps;
         }
@@ -1412,7 +1424,13 @@ unittest
 private
 void writefx(FILE* fps, TypeInfo[] arguments, va_list argptr, int newline=false)
 {
-    int orientation = fwide(fps, 0);    // move this inside the lock?
+    
+    int orientation = 0;
+    version(Android){}
+    else
+    {
+       orientation = fwide(fps, 0);    // move this inside the lock?
+    }
 
     /* Do the file stream locking at the outermost level
      * rather than character by character.
@@ -1444,38 +1462,42 @@ void writefx(FILE* fps, TypeInfo[] arguments, va_list argptr, int newline=false)
     }
     else if (orientation > 0)                // wide orientation
     {
-        version (Windows)
+        version(Android){assert(false, "Android/Bionic doesn't have an implementation for multibyte strings");}
+        else
         {
-            void putcw(dchar c)
+            version (Windows)
             {
-                assert(isValidDchar(c));
-                if (c <= 0xFFFF)
+                void putcw(dchar c)
+                {
+                    assert(isValidDchar(c));
+                    if (c <= 0xFFFF)
+                    {
+                        FPUTWC(c, fp);
+                    }
+                    else
+                    {
+                        FPUTWC(cast(wchar) ((((c - 0x10000) >> 10) & 0x3FF) +
+                                        0xD800), fp);
+                        FPUTWC(cast(wchar) (((c - 0x10000) & 0x3FF) + 0xDC00), fp);
+                    }
+                }
+            }
+            else version (Posix)
+            {
+                void putcw(dchar c)
                 {
                     FPUTWC(c, fp);
                 }
-                else
-                {
-                    FPUTWC(cast(wchar) ((((c - 0x10000) >> 10) & 0x3FF) +
-                                    0xD800), fp);
-                    FPUTWC(cast(wchar) (((c - 0x10000) & 0x3FF) + 0xDC00), fp);
-                }
             }
-        }
-        else version (Posix)
-        {
-            void putcw(dchar c)
+            else
             {
-                FPUTWC(c, fp);
+                static assert(0);
             }
+    
+            std.format.doFormat(&putcw, arguments, argptr);
+            if (newline)
+                FPUTWC('\n', fp);
         }
-        else
-        {
-            static assert(0);
-        }
-
-        std.format.doFormat(&putcw, arguments, argptr);
-        if (newline)
-            FPUTWC('\n', fp);
     }
 }
 
@@ -2478,7 +2500,11 @@ private size_t readlnImpl(FILE* fps, ref char[] buf, dchar terminator = '\n')
 version (GCC_IO)
 private size_t readlnImpl(FILE* fps, ref char[] buf, dchar terminator = '\n')
 {
-    if (fwide(fps, 0) > 0)
+    int isWide = 0;
+    version(Android){}
+    else {isWide = fwide(fps, 0);}
+
+    if (isWide > 0)
     {   /* Stream is in wide characters.
          * Read them and convert to chars.
          */

@@ -824,7 +824,9 @@ d_time parse(string s)
 
 extern(C) void std_date_static_this()
 {
-    localTZA = getLocalTZA();
+    version(Android) {}
+    else
+        localTZA = getLocalTZA();
 }
 
 version (Win32)
@@ -995,27 +997,34 @@ version (Posix)
                 (tv.tv_usec / (1000000 / cast(d_time)ticksPerSecond));
     }
 
-    d_time getLocalTZA()
+    version(Android)
     {
-        time_t t;
-
-        time(&t);
-        version (OSX)
+        pragma(msg, "Timezones not supported on Android");
+    }
+    else
+    {
+        d_time getLocalTZA()
         {
-            tm result;
-            localtime_r(&t, &result);
-            return result.tm_gmtoff * ticksPerSecond;
-        }
-        else version (FreeBSD)
-        {
-            tm result;
-            localtime_r(&t, &result);
-            return result.tm_gmtoff * ticksPerSecond;
-        }
-        else
-        {
-            localtime(&t);        // this will set timezone
-            return -(timezone * ticksPerSecond);
+            time_t t;
+    
+            time(&t);
+            version (OSX)
+            {
+                tm result;
+                localtime_r(&t, &result);
+                return result.tm_gmtoff * ticksPerSecond;
+            }
+            else version (FreeBSD)
+            {
+                tm result;
+                localtime_r(&t, &result);
+                return result.tm_gmtoff * ticksPerSecond;
+            }
+            else
+            {
+                localtime(&t);        // this will set timezone
+                return -(timezone * ticksPerSecond);
+            }
         }
     }
 

@@ -2698,7 +2698,7 @@ string expandTilde(string inputPath)
                use getpwnam at the same time */
             synchronized
             {
-                result = getpwnam(username);
+                result = getpwnam(username.ptr);
             }
             
             if (result)
