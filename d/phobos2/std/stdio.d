@@ -44,7 +44,20 @@ version (Posix)
     alias core.sys.posix.stdio.fileno fileno;
 }
 
-version (linux)
+version (Android)
+{
+    version = GENERIC_IO;
+    alias core.stdc.stdio.fopen fopen64;
+
+    /*
+     * Android doesn't have wide character support
+     */
+    int fwide(FILE* stream, int mode)
+    {
+        return 0;
+    }
+}
+else version (linux)
 {
     // Specific to the way Gnu C does stdio
     version = GCC_IO;
@@ -181,17 +194,23 @@ else version (GENERIC_IO)
     }
 
     int fputc_unlocked(int c, _iobuf* fp) { return fputc(c, cast(shared) fp); }
-    int fputwc_unlocked(wchar_t c, _iobuf* fp)
-    {
-        return fputwc(c, cast(shared) fp);
-    }
     int fgetc_unlocked(_iobuf* fp) { return fgetc(cast(shared) fp); }
-    int fgetwc_unlocked(_iobuf* fp) { return fgetwc(cast(shared) fp); }
+
+    version(Android){}
+    else
+    {
+        int fputwc_unlocked(wchar_t c, _iobuf* fp)
+        {
+            return fputwc(c, cast(shared) fp);
+        }
+        int fgetwc_unlocked(_iobuf* fp) { return fgetwc(cast(shared) fp); }
+
+        alias fputwc_unlocked FPUTWC;
+        alias fgetwc_unlocked FGETWC;
+    }
 
     alias fputc_unlocked FPUTC;
-    alias fputwc_unlocked FPUTWC;
     alias fgetc_unlocked FGETC;
-    alias fgetwc_unlocked FGETWC;
 
     alias flockfile FLOCK;
     alias funlockfile FUNLOCK;
@@ -590,10 +609,10 @@ file handle. Throws on error.
             errnoEnforce(fseek(p.handle, to!int(offset), origin) == 0,
                     "Could not seek in file `"~p.name~"'");
         }
-        else version(Android)
+        else version (Android)
         {
-            errnoEnforce(core.stdc.stdio.fseek(p.handle, to!int(offset), origin) == 0,
-                    "Could not seek in file `"~p.name~"'");
+            errnoEnforce(core.stdc.stdio.fseek(p.handle, to!int(offset),
+                    origin) == 0, "Could not seek in file `"~p.name~"'");
         }
         else
         {
@@ -1179,14 +1198,7 @@ $(D Range) that locks the file and allows fast writing to it.
         {
             enforce(f.p && f.p.handle);
             fps = f.p.handle;
-            version(Android)
-            {
-                orientation = 0;
-            }
-            else
-            {
-                orientation = fwide(fps, 0);
-            }
+            orientation = fwide(fps, 0);
             FLOCK(fps);
             handle = cast(_iobuf*)fps;
         }
@@ -1239,7 +1251,17 @@ $(D Range) that locks the file and allows fast writing to it.
             {
                 // simple char
                 if (orientation <= 0) FPUTC(c, handle);
-                else FPUTWC(c, handle);
+                else
+                {
+                    version(Android)
+                    {
+                        assert(false, "orientation should never be > 0 on Android!");
+                    }
+                    else
+                    {
+                        FPUTWC(c, handle);
+                    }
+                }
             }
             else static if (c.sizeof == 2)
             {
@@ -1259,7 +1281,14 @@ $(D Range) that locks the file and allows fast writing to it.
                 }
                 else
                 {
-                    FPUTWC(c, handle);
+                    version(Android)
+                    {
+                        assert(false, "orientation should never be > 0 on Android!");
+                    }
+                    else
+                    {
+                        FPUTWC(c, handle);
+                    }
                 }
             }
             else // 32-bit characters
@@ -1280,7 +1309,11 @@ $(D Range) that locks the file and allows fast writing to it.
                 }
                 else
                 {
-                    version (Windows)
+                    version(Android)
+                    {
+                        assert(false, "orientation should never be > 0 on Android!");
+                    }
+                    else version (Windows)
                     {
                         assert(isValidDchar(c));
                         if (c <= 0xFFFF)
@@ -1424,13 +1457,7 @@ unittest
 private
 void writefx(FILE* fps, TypeInfo[] arguments, va_list argptr, int newline=false)
 {
-    
-    int orientation = 0;
-    version(Android){}
-    else
-    {
-       orientation = fwide(fps, 0);    // move this inside the lock?
-    }
+    int orientation = fwide(fps, 0);    // move this inside the lock?
 
     /* Do the file stream locking at the outermost level
      * rather than character by character.
@@ -1462,38 +1489,45 @@ void writefx(FILE* fps, TypeInfo[] arguments, va_list argptr, int newline=false)
     }
     else if (orientation > 0)                // wide orientation
     {
-        version(Android){assert(false, "Android/Bionic doesn't have an implementation for multibyte strings");}
-        else
+        version(Android)
         {
-            version (Windows)
+            void putcw(dchar c)
             {
-                void putcw(dchar c)
-                {
-                    assert(isValidDchar(c));
-                    if (c <= 0xFFFF)
-                    {
-                        FPUTWC(c, fp);
-                    }
-                    else
-                    {
-                        FPUTWC(cast(wchar) ((((c - 0x10000) >> 10) & 0x3FF) +
-                                        0xD800), fp);
-                        FPUTWC(cast(wchar) (((c - 0x10000) & 0x3FF) + 0xDC00), fp);
-                    }
-                }
+                assert(false, "orientation should never be > 0 on Android!");
             }
-            else version (Posix)
+        }
+        else version (Windows)
+        {
+            void putcw(dchar c)
             {
-                void putcw(dchar c)
+                assert(isValidDchar(c));
+                if (c <= 0xFFFF)
                 {
                     FPUTWC(c, fp);
                 }
+                else
+                {
+                    FPUTWC(cast(wchar) ((((c - 0x10000) >> 10) & 0x3FF) +
+                                    0xD800), fp);
+                    FPUTWC(cast(wchar) (((c - 0x10000) & 0x3FF) + 0xDC00), fp);
+                }
             }
-            else
+        }
+        else version (Posix)
+        {
+            void putcw(dchar c)
             {
-                static assert(0);
+                FPUTWC(c, fp);
             }
-    
+        }
+        else
+        {
+            static assert(0);
+        }
+
+        version(Android) assert(false, "orientation should never be > 0 on Android!");
+        else
+        {
             std.format.doFormat(&putcw, arguments, argptr);
             if (newline)
                 FPUTWC('\n', fp);
@@ -2500,11 +2534,7 @@ private size_t readlnImpl(FILE* fps, ref char[] buf, dchar terminator = '\n')
 version (GCC_IO)
 private size_t readlnImpl(FILE* fps, ref char[] buf, dchar terminator = '\n')
 {
-    int isWide = 0;
-    version(Android){}
-    else {isWide = fwide(fps, 0);}
-
-    if (isWide > 0)
+    if (fwide(fps, 0) > 0)
     {   /* Stream is in wide characters.
          * Read them and convert to chars.
          */
@@ -2596,7 +2626,11 @@ private size_t readlnImpl(FILE* fps, ref char[] buf, dchar terminator = '\n')
     {   /* Stream is in wide characters.
          * Read them and convert to chars.
          */
-        version (Windows)
+        version(Android)
+        {
+            assert(false, "orientation should never be > 0 on Android!");
+        }
+        else version (Windows)
         {
             buf.length = 0;
             for (int c; (c = FGETWC(fp)) != -1; )
