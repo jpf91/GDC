@@ -21,5 +21,3 @@ nothrow:
 
 alias wchar_t wctrans_t;
 alias wchar_t wctype_t;
-
-pragma(msg, "Android/Bionic doesn't have an implementation for multibyte strings");

@@ -29,5 +29,3 @@ alias int     mbstate_t;
 alias wchar_t wint_t;
 
 enum wchar_t WEOF = cast(wchar_t)(-1);
-
-pragma(msg, "Android/Bionic doesn't have an implementation for multibyte strings");
