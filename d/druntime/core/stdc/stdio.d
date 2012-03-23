@@ -57,8 +57,8 @@ struct _iobuf
     version( GNU )
     {
         // want to get rid of this...
-        /* 81 == sizeof(__sFILE)*/
-        byte[81] opaque;
+        /* 84 == sizeof(__sFILE)*/
+        byte[84] opaque;
     }
     else
     {
@@ -77,14 +77,15 @@ version( linux )
         _IONBF = 2,
     }
 
-    extern(C)
-    {
-        FILE __sF[3];
-    }
-
-    auto stdin  = &__sF[0];
-    auto stdout = &__sF[1];
-    auto stderr = &__sF[2];
+    /*
+     * Crap: Must initialize those at runtime for android,
+     * see http://dan.drown.org/android/worknotes.html
+     *
+     * So moved to dmain2.d
+     */
+    FILE* stdin;
+    FILE* stdout;
+    FILE* stderr;
 }
 else
 {

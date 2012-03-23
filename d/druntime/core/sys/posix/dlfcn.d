@@ -33,6 +33,9 @@ void* dlopen(in char*, int);
 void* dlsym(void*, in char*);
 */
 
+enum RTLD_DEFAULT = cast(void*)0xffffffff;
+enum RTLD_NEXT = cast(void*)0xfffffffe;
+
 enum RTLD_LAZY      = 1;
 enum RTLD_NOW       = 0;
 enum RTLD_GLOBAL    = 2;

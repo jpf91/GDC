@@ -382,6 +382,23 @@ extern (C) int main(int argc, char** argv)
     char[][] args;
     int result;
 
+    /*
+     * Due to some strange issues this has to be done at runtime on Android
+     * See https://github.com/jpf91/GDC/issues/4
+     */
+    version(Android)
+    {
+        import core.sys.posix.dlfcn;
+        import core.stdc.stdio;
+        auto sf = dlsym(RTLD_DEFAULT, "__sF");
+        if(!sf)
+            assert(false, "Couldn't find __sF, can't initialize stdin/stdout/stderr");
+
+        stdin  = cast(FILE*)sf;
+        stdout = cast(FILE*)(sf + 1 * FILE.sizeof);
+        stderr = cast(FILE*)(sf + 2 * FILE.sizeof);
+    }
+
     version (OSX)
     {   /* OSX does not provide a way to get at the top of the
          * stack, except for the magic value 0xC0000000.
