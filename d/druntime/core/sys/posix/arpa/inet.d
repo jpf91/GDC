@@ -18,6 +18,37 @@ private import core.sys.posix.config;
 public import core.stdc.inttypes; // for uint32_t, uint16_t
 public import core.sys.posix.sys.socket; // for socklen_t
 
+/* From openbsd's libkern, public domain,
+ * Written by J.T. Conklin <jtc@netbsd.org>
+ */
+uint16_t htons(uint16_t x)
+{
+    version(LittleEndian)
+    {
+        ubyte *s = cast(ubyte*) &x;
+        return cast(uint16_t)(s[0] << 8 | s[1]);
+    }
+    else
+    {
+        return x;
+    }
+}
+alias htons ntohs;
+
+uint32_t htonl(uint32_t x)
+{
+    version(LittleEndian)
+    {
+        ubyte *s = cast(ubyte*) &x;
+        return cast(uint32_t)(s[0] << 24 | s[1] << 16 | s[2] << 8 | s[3]);
+    }
+    else
+    {
+        return x;
+    }
+}
+alias htonl ntohl;
+
 extern (C):
 
 //
@@ -57,11 +88,6 @@ struct in_addr
 }
 
 enum INET_ADDRSTRLEN = 16;
-
-uint32_t htonl(uint32_t);
-uint16_t htons(uint16_t);
-uint32_t ntohl(uint32_t);
-uint16_t ntohs(uint16_t);
 
 in_addr_t       inet_addr(in char*);
 char*           inet_ntoa(in_addr);
