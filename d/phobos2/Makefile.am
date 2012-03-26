@@ -131,7 +131,8 @@ CORE_OBJS=core/atomic.o core/cpuid.o core/demangle.o core/exception.o \
 	  core/math.o core/memory.o core/runtime.o core/simd.o \
 	  core/thread.o core/threadasm.o core/time.o core/vararg.o core/sync/barrier.o \
 	  core/sync/condition.o core/sync/config.o core/sync/exception.o \
-	  core/sync/mutex.o core/sync/rwmutex.o core/sync/semaphore.o
+	  core/sync/mutex.o core/sync/rwmutex.o core/sync/semaphore.o \
+	  core/sys/posix/arpa/inet.o
 
 GCC_OBJS=gcc/unwind_pe.o gcc/deh.o gcc/threadsem.o \
 	 gcc/builtins.o gcc/config/mathfuncs.o gcc/support.o \
