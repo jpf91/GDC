@@ -312,6 +312,7 @@ struct ModuleInfo
     @property void function() dtor() nothrow pure;
     @property void function() ictor() nothrow pure;
     @property void function() unitTest() nothrow pure;
+    @property UnitTest[] unitTests() nothrow pure; 
     @property ModuleInfo*[] importedModules() nothrow pure;
     @property TypeInfo_Class[] localClasses() nothrow pure;
     @property string name() nothrow pure;
@@ -706,3 +707,15 @@ version (unittest)
     }
 }
 
+/******************************************
+ * UnitTest info type
+ */
+struct UnitTest
+{
+    ushort ver; //version of this struct, currently = 1
+    string name; //Not used yet
+    string fileName;
+    uint line;
+    void function() testFunc;
+    bool disabled;
+} 

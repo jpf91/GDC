@@ -69,7 +69,7 @@ IRBase::startFunction (FuncDeclaration *decl)
       mi.dtors.push (decl);
     }
   else if (decl->isUnitTestDeclaration())
-    mi.unitTests.push (decl);
+    mi.unitTests.push (decl->isUnitTestDeclaration());
 
   return new_irs;
 }

@@ -376,6 +376,35 @@ Module::genobjfile (int multiobj)
       if (mi.unitTests.dim)
 	stest = object_file->doUnittestFunction ("*__modtest", &mi.unitTests)->toSymbol();
 
+      if(mi.unitTests.dim)
+	{
+	  if (!StructDeclaration::UnitTest)
+	    {
+	      warning(loc, "mismatch between compiler and object.d or object.di found. "
+		"struct UnitTest was not found, advanced unittest information won't "
+		"be available. "
+		"Check installation and import paths with -v compiler switch.");
+	    }
+	  else
+	    {
+	      unitTests = new UnitTestDeclarations(mi.unitTests);
+	      Loc loc = Loc();
+	      Type *ttype = new TypeSArray(StructDeclaration::UnitTest->type,
+		new IntegerExp(loc, mi.unitTests.dim, Type::tsize_t));
+	      ArrayInitializer *init = new ArrayInitializer(loc);
+	      for(unsigned i = 0; i < mi.unitTests.dim; i++)
+		{
+		  init->addInit(NULL,
+		    mi.unitTests[i]->toUnitTestStruct());
+		}
+	      init->semantic(this->scope, ttype, INITnointerpret);
+	      unitTestArr = new VarDeclaration(loc, ttype,
+		new Identifier("__modtestArray", 0), init);
+	      unitTestArr->storage_class |= STCgshared | STCimmutable;
+	      unitTestArr->semantic(this->scope);
+	    }
+	}
+
       genmoduleinfo();
     }
 
@@ -1229,9 +1258,9 @@ ObjectFile::doDtorFunction (const char *name, FuncDeclarations *functions)
 /* Currently just calls doFunctionToCallFunctions
 */
 FuncDeclaration *
-ObjectFile::doUnittestFunction (const char *name, FuncDeclarations *functions)
+ObjectFile::doUnittestFunction (const char *name, UnitTestDeclarations *functions)
 {
-  return doFunctionToCallFunctions (name, functions);
+  return doFunctionToCallFunctions (name, (FuncDeclarations *)functions);
 }
 
 

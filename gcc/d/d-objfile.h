@@ -29,7 +29,7 @@ struct ModuleInfo
   FuncDeclarations shareddtors;
   VarDeclarations sharedctorgates;
 
-  FuncDeclarations unitTests;
+  UnitTestDeclarations unitTests;
 };
 
 enum TemplateEmission
@@ -105,7 +105,7 @@ struct ObjectFile
   static FuncDeclaration *doFunctionToCallFunctions (const char *name, FuncDeclarations *functions, bool force_and_public = false);
   static FuncDeclaration *doCtorFunction (const char *name, FuncDeclarations *functions, VarDeclarations *gates);
   static FuncDeclaration *doDtorFunction (const char *name, FuncDeclarations *functions);
-  static FuncDeclaration *doUnittestFunction (const char *name, FuncDeclarations *functions);
+  static FuncDeclaration *doUnittestFunction (const char *name, UnitTestDeclarations *functions);
 
   // ** Module info.  Assuming only one module per run of the compiler.
 

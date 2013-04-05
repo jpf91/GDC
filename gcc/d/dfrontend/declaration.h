@@ -890,6 +890,9 @@ struct UnitTestDeclaration : FuncDeclaration
     void toCBuffer(OutBuffer *buf, HdrGenState *hgs);
 
     UnitTestDeclaration *isUnitTestDeclaration() { return this; }
+
+    char* name;
+    ExpInitializer *toUnitTestStruct(); 
 };
 
 struct NewDeclaration : FuncDeclaration
