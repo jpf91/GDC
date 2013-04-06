@@ -1718,7 +1718,7 @@ unittest// Issue 8055
     assert(b.x == 0);
 }
 
-unittest// Issue 8057
+@disable unittest// Issue 8057
 {
     int n = 10;
     struct S

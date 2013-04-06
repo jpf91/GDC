@@ -3620,7 +3620,7 @@ unittest
     assert(equal(a[], [1]));
 }
 // make sure that Array instances refuse ranges that don't belong to them
-unittest
+@disable unittest
 {
         Array!int a = [1, 2, 3];
         auto r = a.dup[];
