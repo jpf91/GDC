@@ -1,3 +1,10 @@
+2014-01-14  Johannes Pfau  <johannespfau@gmail.com>
+
+	* d-decls.cc(FuncDeclaration::toSymbol): Do not set TREE_NOTHROW on
+	nothrow functions.
+	* d-decls.cc(TypeInfoDeclaration::toSymbol): Call relayout_decl after
+	changing the type.
+
 2014-01-02  Iain Buclaw  <ibuclaw@gdcproject.org>
 
 	* d-objfile.cc(setup_symbol_storage): Use output_module_p on template
