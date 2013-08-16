@@ -103,8 +103,15 @@ struct OurUnwindException
   }
 
   // To place 'obj' behing unwindHeader.
-  enum UNWIND_PAD = (Phase1Info.sizeof + Object.sizeof)
-    % _Unwind_Exception.alignof;
+  version (GNU_ARM_EABI_Unwinder) //EABI unwinder doesn't have a Phase1Info member
+  {
+    enum UNWIND_PAD = 4;
+  }
+  else
+  {
+    enum UNWIND_PAD = (Phase1Info.sizeof + Object.sizeof)
+      % _Unwind_Exception.alignof;
+  }
 
   static if (UNWIND_PAD > 0)
     byte[UNWIND_PAD] _pad;
