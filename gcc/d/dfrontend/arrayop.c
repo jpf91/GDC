@@ -444,7 +444,7 @@ Expression *BinAssignExp::arrayOp(Scope *sc)
 void Expression::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
     buf->writestring("Exp");
-    arguments->shift(this);
+    arguments->push(this);
 }
 
 void CastExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
@@ -461,30 +461,30 @@ void CastExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 void ArrayLiteralExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
     buf->writestring("Slice");
-    arguments->shift(this);
+    arguments->push(this);
 }
 
 void SliceExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
     buf->writestring("Slice");
-    arguments->shift(this);
+    arguments->push(this);
 }
 
 void AssignExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
-    /* Evaluate assign expressions right to left
+    /* Evaluate assign expressions left to right
      */
-    e2->buildArrayIdent(buf, arguments);
     e1->buildArrayIdent(buf, arguments);
+    e2->buildArrayIdent(buf, arguments);
     buf->writestring("Assign");
 }
 
 void BinAssignExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
-    /* Evaluate assign expressions right to left
+    /* Evaluate assign expressions left to right
      */
-    e2->buildArrayIdent(buf, arguments);
     e1->buildArrayIdent(buf, arguments);
+    e2->buildArrayIdent(buf, arguments);
     const char *s;
     switch(op)
     {
@@ -518,7 +518,7 @@ void ComExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 
 void BinExp::buildArrayIdent(OutBuffer *buf, Expressions *arguments)
 {
-    /* Evaluate assign expressions left to right
+    /* Evaluate array op expressions left to right
      */
     const char *s = NULL;
     switch(op)
@@ -555,7 +555,7 @@ Expression *Expression::buildArrayLoop(Parameters *fparams)
 {
     Identifier *id = Identifier::generateId("c", fparams->dim);
     Parameter *param = new Parameter(0, type, id, NULL);
-    fparams->shift(param);
+    fparams->push(param);
     Expression *e = new IdentifierExp(Loc(), id);
     return e;
 }
@@ -575,7 +575,7 @@ Expression *ArrayLiteralExp::buildArrayLoop(Parameters *fparams)
 {
     Identifier *id = Identifier::generateId("p", fparams->dim);
     Parameter *param = new Parameter(STCconst, type, id, NULL);
-    fparams->shift(param);
+    fparams->push(param);
     Expression *e = new IdentifierExp(Loc(), id);
     Expressions *arguments = new Expressions();
     Expression *index = new IdentifierExp(Loc(), Id::p);
@@ -588,7 +588,7 @@ Expression *SliceExp::buildArrayLoop(Parameters *fparams)
 {
     Identifier *id = Identifier::generateId("p", fparams->dim);
     Parameter *param = new Parameter(STCconst, type, id, NULL);
-    fparams->shift(param);
+    fparams->push(param);
     Expression *e = new IdentifierExp(Loc(), id);
     Expressions *arguments = new Expressions();
     Expression *index = new IdentifierExp(Loc(), Id::p);
@@ -599,8 +599,11 @@ Expression *SliceExp::buildArrayLoop(Parameters *fparams)
 
 Expression *AssignExp::buildArrayLoop(Parameters *fparams)
 {
-    /* Evaluate assign expressions right to left
+    /* Evaluate assign expressions left to right
      */
+    Expression *ex1 = e1->buildArrayLoop(fparams);
+    Parameter *param = (*fparams)[fparams->dim - 1];
+    param->storageClass = 0;
     Expression *ex2 = e2->buildArrayLoop(fparams);
 #if DMDV2
     /* Need the cast because:
@@ -610,21 +613,18 @@ Expression *AssignExp::buildArrayLoop(Parameters *fparams)
      */
     ex2 = new CastExp(Loc(), ex2, e1->type->nextOf());
 #endif
-    Expression *ex1 = e1->buildArrayLoop(fparams);
-    Parameter *param = (*fparams)[0];
-    param->storageClass = 0;
     Expression *e = new AssignExp(Loc(), ex1, ex2);
     return e;
 }
 
 Expression *BinAssignExp::buildArrayLoop(Parameters *fparams)
 {
-    /* Evaluate assign expressions right to left
+    /* Evaluate assign expressions left to right
      */
-    Expression *ex2 = e2->buildArrayLoop(fparams);
     Expression *ex1 = e1->buildArrayLoop(fparams);
-    Parameter *param = (*fparams)[0];
+    Parameter *param = (*fparams)[fparams->dim - 1];
     param->storageClass = 0;
+    Expression *ex2 = e2->buildArrayLoop(fparams);
     Expression *e;
     switch(op)
     {
@@ -675,7 +675,7 @@ Expression *BinExp::buildArrayLoop(Parameters *fparams)
     case TOKpow:
 #endif
     {
-        /* Evaluate assign expressions left to right
+        /* Evaluate array op expressions left to right
          */
         BinExp *e = (BinExp *)copy();
         e->e1 = e->e1->buildArrayLoop(fparams);

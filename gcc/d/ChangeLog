@@ -1,3 +1,10 @@
+2014-04-01  Johannes Pfau  <johannespfau@gmail.com>
+
+	* d-codegen.cc(d_build_call): Evaluate extern(C) functions LTR just
+	like extern(D) functions.
+	* d-elem.cc(AssignExp::toElem): Evaluate assignments LTR if both sides
+	have side effects.
+
 2014-03-31  Iain Buclaw  <ibuclaw@gdcproject.org>
 
 	* d-codegen.cc(error_mark_p): Removed function, replace uses with

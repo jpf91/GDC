@@ -1095,8 +1095,20 @@ AssignExp::toElem (IRState *irs)
     }
 
   // Simple assignment
-  return modify_expr (type->toCtype(), e1->toElem (irs),
-		      convert_for_assignment (e2->toElem (irs), e2->type, e1->type));
+  tree te1 = e1->toElem (irs);
+  tree te2 = convert_for_assignment (e2->toElem (irs), e2->type, e1->type);
+  tree saved_args = NULL_TREE;
+  if (TREE_SIDE_EFFECTS (te1) && TREE_SIDE_EFFECTS (te2))
+    {
+      te1 = stabilize_reference (te1);
+      saved_args = maybe_vcompound_expr (saved_args, te1);
+
+      te2 = maybe_make_temp (te2);
+      saved_args = maybe_vcompound_expr (saved_args, te2);
+    }
+
+  tree result = modify_expr (type->toCtype(), te1, te2);
+  return maybe_compound_expr (saved_args, result);
 }
 
 elem *

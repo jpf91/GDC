@@ -2037,7 +2037,7 @@ d_build_call (TypeFunction *tf, tree callable, tree object, Expressions *argumen
 
 	  // Evaluate the argument before passing to the function.
 	  // Needed for left to right evaluation.
-	  if (tf->linkage == LINKd && TREE_SIDE_EFFECTS (targ))
+	  if (TREE_SIDE_EFFECTS (targ))
 	    {
 	      targ = maybe_make_temp (targ);
 	      saved_args = maybe_vcompound_expr (saved_args, targ);
