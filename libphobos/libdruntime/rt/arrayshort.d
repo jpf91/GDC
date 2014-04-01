@@ -57,17 +57,17 @@ extern (C) @trusted nothrow:
  *      a[] = b[] + value
  */
 
-T[] _arraySliceExpAddSliceAssign_u(T[] a, T value, T[] b)
+T[] _arraySliceExpAddSliceAssign_u(T[] a, T[] b, T value)
 {
-    return _arraySliceExpAddSliceAssign_s(a, value, b);
+    return _arraySliceExpAddSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpAddSliceAssign_t(T[] a, T value, T[] b)
+T[] _arraySliceExpAddSliceAssign_t(T[] a, T[] b, T value)
 {
-    return _arraySliceExpAddSliceAssign_s(a, value, b);
+    return _arraySliceExpAddSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpAddSliceAssign_s(T[] a, T value, T[] b)
+T[] _arraySliceExpAddSliceAssign_s(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -233,17 +233,17 @@ unittest
  *      a[] = b[] + c[]
  */
 
-T[] _arraySliceSliceAddSliceAssign_u(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceAddSliceAssign_u(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceAddSliceAssign_s(a, c, b);
+    return _arraySliceSliceAddSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceAddSliceAssign_t(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceAddSliceAssign_t(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceAddSliceAssign_s(a, c, b);
+    return _arraySliceSliceAddSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceAddSliceAssign_s(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceAddSliceAssign_s(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -748,17 +748,17 @@ unittest
  *      a[] = b[] - value
  */
 
-T[] _arraySliceExpMinSliceAssign_u(T[] a, T value, T[] b)
+T[] _arraySliceExpMinSliceAssign_u(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMinSliceAssign_s(a, value, b);
+    return _arraySliceExpMinSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpMinSliceAssign_t(T[] a, T value, T[] b)
+T[] _arraySliceExpMinSliceAssign_t(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMinSliceAssign_s(a, value, b);
+    return _arraySliceExpMinSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpMinSliceAssign_s(T[] a, T value, T[] b)
+T[] _arraySliceExpMinSliceAssign_s(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -1106,17 +1106,17 @@ unittest
  *      a[] = b[] - c[]
  */
 
-T[] _arraySliceSliceMinSliceAssign_u(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMinSliceAssign_u(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceMinSliceAssign_s(a, c, b);
+    return _arraySliceSliceMinSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceMinSliceAssign_t(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMinSliceAssign_t(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceMinSliceAssign_s(a, c, b);
+    return _arraySliceSliceMinSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceMinSliceAssign_s(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMinSliceAssign_s(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -1620,17 +1620,17 @@ unittest
  *      a[] = b[] * value
  */
 
-T[] _arraySliceExpMulSliceAssign_u(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAssign_u(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMulSliceAssign_s(a, value, b);
+    return _arraySliceExpMulSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpMulSliceAssign_t(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAssign_t(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMulSliceAssign_s(a, value, b);
+    return _arraySliceExpMulSliceAssign_s(a, b, value);
 }
 
-T[] _arraySliceExpMulSliceAssign_s(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAssign_s(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -1796,17 +1796,17 @@ unittest
  *      a[] = b[] * c[]
  */
 
-T[] _arraySliceSliceMulSliceAssign_u(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMulSliceAssign_u(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceMulSliceAssign_s(a, c, b);
+    return _arraySliceSliceMulSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceMulSliceAssign_t(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMulSliceAssign_t(T[] a, T[] b, T[] c)
 {
-    return _arraySliceSliceMulSliceAssign_s(a, c, b);
+    return _arraySliceSliceMulSliceAssign_s(a, b, c);
 }
 
-T[] _arraySliceSliceMulSliceAssign_s(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMulSliceAssign_s(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);

@@ -163,7 +163,7 @@ private template CodeGenSliceSliceOp(string opD, string opSSE, string op3DNow)
  *      a[] = b[] + c[]
  */
 
-T[] _arraySliceSliceAddSliceAssign_f(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceAddSliceAssign_f(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -220,7 +220,7 @@ unittest
  *      a[] = b[] - c[]
  */
 
-T[] _arraySliceSliceMinSliceAssign_f(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMinSliceAssign_f(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -277,7 +277,7 @@ unittest
  *      a[] = b[] * c[]
  */
 
-T[] _arraySliceSliceMulSliceAssign_f(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMulSliceAssign_f(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -740,7 +740,7 @@ private template CodeGenSliceExpOp(string opD, string opSSE, string op3DNow)
  *      a[] = b[] + value
  */
 
-T[] _arraySliceExpAddSliceAssign_f(T[] a, T value, T[] b)
+T[] _arraySliceExpAddSliceAssign_f(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -795,7 +795,7 @@ unittest
  *      a[] = b[] - value
  */
 
-T[] _arraySliceExpMinSliceAssign_f(T[] a, T value, T[] b)
+T[] _arraySliceExpMinSliceAssign_f(T[] a, T[] b, T value)
 in
 {
     assert (a.length == b.length);
@@ -850,7 +850,7 @@ unittest
  *      a[] = b[] * value
  */
 
-T[] _arraySliceExpMulSliceAssign_f(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAssign_f(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -905,9 +905,9 @@ unittest
  *      a[] = b[] / value
  */
 
-T[] _arraySliceExpDivSliceAssign_f(T[] a, T value, T[] b)
+T[] _arraySliceExpDivSliceAssign_f(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMulSliceAssign_f(a, 1f/value, b);
+    return _arraySliceExpMulSliceAssign_f(a, b, 1f/value);
 }
 
 unittest
@@ -1366,9 +1366,9 @@ unittest
  *      a[] -= b[] * value
  */
 
-T[] _arraySliceExpMulSliceMinass_f(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceMinass_f(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMulSliceAddass_f(a, -value, b);
+    return _arraySliceExpMulSliceAddass_f(a, b, -value);
 }
 
 /***********************
@@ -1376,7 +1376,7 @@ T[] _arraySliceExpMulSliceMinass_f(T[] a, T value, T[] b)
  *      a[] += b[] * value
  */
 
-T[] _arraySliceExpMulSliceAddass_f(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAddass_f(T[] a, T[] b, T value)
 in
 {
         assert(a.length == b.length);

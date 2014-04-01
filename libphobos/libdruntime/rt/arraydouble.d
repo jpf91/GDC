@@ -59,7 +59,7 @@ extern (C) @trusted nothrow:
  *      a[] = b[] + c[]
  */
 
-T[] _arraySliceSliceAddSliceAssign_d(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceAddSliceAssign_d(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -171,7 +171,7 @@ unittest
  *      a[] = b[] - c[]
  */
 
-T[] _arraySliceSliceMinSliceAssign_d(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMinSliceAssign_d(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -284,7 +284,7 @@ unittest
  *      a[] = b[] + value
  */
 
-T[] _arraySliceExpAddSliceAssign_d(T[] a, T value, T[] b)
+T[] _arraySliceExpAddSliceAssign_d(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -591,7 +591,7 @@ unittest
  *      a[] = b[] - value
  */
 
-T[] _arraySliceExpMinSliceAssign_d(T[] a, T value, T[] b)
+T[] _arraySliceExpMinSliceAssign_d(T[] a, T[] b, T value)
 in
 {
     assert (a.length == b.length);
@@ -1006,7 +1006,7 @@ unittest
  *      a[] = b[] * value
  */
 
-T[] _arraySliceExpMulSliceAssign_d(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAssign_d(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -1110,7 +1110,7 @@ unittest
  *      a[] = b[] * c[]
  */
 
-T[] _arraySliceSliceMulSliceAssign_d(T[] a, T[] c, T[] b)
+T[] _arraySliceSliceMulSliceAssign_d(T[] a, T[] b, T[] c)
 in
 {
         assert(a.length == b.length && b.length == c.length);
@@ -1424,7 +1424,7 @@ unittest
  *      a[] = b[] / value
  */
 
-T[] _arraySliceExpDivSliceAssign_d(T[] a, T value, T[] b)
+T[] _arraySliceExpDivSliceAssign_d(T[] a, T[] b, T value)
 in
 {
     assert(a.length == b.length);
@@ -1651,9 +1651,9 @@ unittest
  *      a[] -= b[] * value
  */
 
-T[] _arraySliceExpMulSliceMinass_d(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceMinass_d(T[] a, T[] b, T value)
 {
-    return _arraySliceExpMulSliceAddass_d(a, -value, b);
+    return _arraySliceExpMulSliceAddass_d(a, b, -value);
 }
 
 /***********************
@@ -1661,7 +1661,7 @@ T[] _arraySliceExpMulSliceMinass_d(T[] a, T value, T[] b)
  *      a[] += b[] * value
  */
 
-T[] _arraySliceExpMulSliceAddass_d(T[] a, T value, T[] b)
+T[] _arraySliceExpMulSliceAddass_d(T[] a, T[] b, T value)
 in
 {
         assert(a.length == b.length);
