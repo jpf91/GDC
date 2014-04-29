@@ -20,9 +20,11 @@
 */
 
 #include "d-system.h"
+extern "C" {
 #include "options.h"
 #include "cppdefault.h"
 #include "debug.h"
+}//extern "C"
 
 #include "d-lang.h"
 #include "d-codegen.h"
@@ -191,7 +193,6 @@ static void
 d_initialize_diagnostics (diagnostic_context *context)
 {
   // We don't need any of these in error messages.
-  context->show_caret = false;
   context->show_option_requested = false;
   context->show_column = false;
 }
@@ -616,7 +617,7 @@ d_write_global_declarations (void)
 
   /* We're done parsing; proceed to optimize and emit assembly. */
   if (!global.errors && !errorcount)
-    finalize_compilation_unit();
+    cgraph_finalize_compilation_unit();
 
   /* Now, issue warnings about static, but not defined, functions.  */
   check_global_declarations (vec, globalDeclarations.dim);

@@ -56,8 +56,10 @@ extern "C" void __cdecl _assert(void *e, void *f, unsigned line)
 #endif
 
 #ifdef IN_GCC
+extern "C" {
 #include "config.h"
 #include "errors.h"
+} //extern "C"
 #else
 /**************************************
  * Print error message and exit.

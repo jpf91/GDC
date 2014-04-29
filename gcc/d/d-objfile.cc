@@ -1950,8 +1950,7 @@ finish_thunk (tree thunk_decl, tree target_decl, int offset)
 				     virtual_value, 0, alias);
 
       if (DECL_ONE_ONLY (target_decl))
-	symtab_add_to_same_comdat_group ((symtab_node) thunk_node,
-					 (symtab_node) funcn);
+	cgraph_add_to_same_comdat_group (thunk_node, funcn);
     }
   else
     {
@@ -2171,7 +2170,7 @@ build_moduleinfo (Symbol *sym)
   TREE_PRIVATE (modref) = 1;
   TREE_STATIC (modref) = 1;
 
-  vec<constructor_elt, va_gc> *ce = NULL;
+  VEC(constructor_elt, gc) *ce = NULL;
   CONSTRUCTOR_APPEND_ELT (ce, nextfield, d_null_pointer);
   CONSTRUCTOR_APPEND_ELT (ce, modfield, build_address (sym->Stree));
 

@@ -193,6 +193,7 @@ extern tree build_integer_cst (dinteger_t value, tree type = integer_type_node);
 extern tree build_float_cst (const real_t& value, Type *target_type);
 
 extern dinteger_t cst_to_hwi (double_int cst);
+extern dinteger_t cst_to_hwi (HOST_WIDE_INT high, unsigned HOST_WIDE_INT low);
 extern dinteger_t tree_to_hwi (tree t);
 
 // Dynamic arrays

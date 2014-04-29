@@ -555,7 +555,7 @@ convert_for_assignment (tree expr, Type *exp_type, Type *target_type)
 	  tree ctor = build_constructor (target_type->toCtype(), NULL);
 	  if (count)
 	    {
-	      vec<constructor_elt, va_gc> *ce = NULL;
+	      VEC(constructor_elt, gc) *ce = NULL;
 	      tree index = build2 (RANGE_EXPR, Type::tsize_t->toCtype(),
 				   integer_zero_node, build_integer_cst (count - 1));
 	      tree value = convert_for_assignment (expr, exp_type, sa_type->next);
@@ -1019,6 +1019,16 @@ cst_to_hwi (double_int cst)
   gcc_unreachable();
 }
 
+dinteger_t
+cst_to_hwi (HOST_WIDE_INT high, unsigned HOST_WIDE_INT low)
+{
+  double_int r;
+  r.low = low;
+  r.high = high;
+  return cst_to_hwi (r);
+}
+
+
 // Return host integer value for INT_CST T.
 
 dinteger_t
@@ -1068,7 +1078,7 @@ d_array_value (tree type, tree len, tree data)
 {
   // %% assert type is a darray
   tree len_field, ptr_field;
-  vec<constructor_elt, va_gc> *ce = NULL;
+  VEC(constructor_elt, gc) *ce = NULL;
 
   len_field = TYPE_FIELDS (type);
   ptr_field = TREE_CHAIN (len_field);
@@ -1183,7 +1193,7 @@ build_delegate_cst (tree method, tree object, Type *type)
   tree ctor = make_node (CONSTRUCTOR);
   tree obj_field = NULL_TREE;
   tree func_field = NULL_TREE;
-  vec<constructor_elt, va_gc> *ce = NULL;
+  VEC(constructor_elt, gc) *ce = NULL;
 
   if (ctype)
     {

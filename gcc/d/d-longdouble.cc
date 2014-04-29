@@ -129,7 +129,7 @@ longdouble::rv (void)
 longdouble
 longdouble::from_shwi (Type *type, int64_t d)
 {
-  double_int cst = double_int::from_shwi (d);
+  double_int cst = shwi_to_double_int (d);
   REAL_VALUE_FROM_INT (rv(), cst.low, cst.high, TYPE_MODE (type->toCtype()));
   return *this;
 }
@@ -140,7 +140,7 @@ longdouble::from_shwi (Type *type, int64_t d)
 longdouble
 longdouble::from_uhwi (Type *type, uint64_t d)
 {
-  double_int cst = double_int::from_uhwi (d);
+  double_int cst = uhwi_to_double_int (d);
   REAL_VALUE_FROM_UNSIGNED_INT (rv(), cst.low, cst.high, TYPE_MODE (type->toCtype()));
   return *this;
 }

@@ -8,7 +8,6 @@ for all supported architectures. And these where appropriate:
 ** ARM_HardFloat
 ** ARM_SoftFloat
 ** ARM_SoftFP
-* AArch64
 * Alpha
 ** Alpha_SoftFloat
 ** Alpha_HardFloat
@@ -42,26 +41,9 @@ for all supported architectures. And these where appropriate:
 ** SPARC_SoftFloat
 ---
 
---- gcc/config/aarch64/aarch64.h	2013-01-10 20:38:27.000000000 +0000
-+++ gcc/config/aarch64/aarch64.h	2013-03-20 16:26:18.726235723 +0000
-@@ -51,6 +51,14 @@
- 							\
-     } while (0)
- 
-+/* Target CPU builtins for D.  */
-+#define TARGET_CPU_D_BUILTINS()				\
-+  do							\
-+    {							\
-+      builtin_define ("AArch64");			\
-+      builtin_define ("D_HardFloat");			\
-+    } while (0)
-+
- 
- 
- /* Target machine storage layout.  */
---- gcc/config/alpha/alpha.h	2013-01-10 20:38:27.000000000 +0000
-+++ gcc/config/alpha/alpha.h	2013-03-20 16:26:18.734235722 +0000
-@@ -72,6 +72,23 @@ along with GCC; see the file COPYING3.
+--- gcc.orig/config/alpha/alpha.h	2013-03-27 14:22:29.790732704 +0100
++++ gcc/config/alpha/alpha.h	2013-03-27 14:17:20.346873301 +0100
+@@ -74,6 +74,23 @@ along with GCC; see the file COPYING3.
  	SUBTARGET_LANGUAGE_CPP_BUILTINS();		\
  } while (0)
  
@@ -85,9 +67,10 @@ for all supported architectures. And these where appropriate:
  #ifndef SUBTARGET_LANGUAGE_CPP_BUILTINS
  #define SUBTARGET_LANGUAGE_CPP_BUILTINS()		\
    do							\
---- gcc/config/arm/arm.h	2013-01-15 16:17:28.000000000 +0000
-+++ gcc/config/arm/arm.h	2013-03-20 16:26:18.746235724 +0000
-@@ -158,6 +158,31 @@ extern char arm_arch_name[];
+diff -urp gcc.orig/config/arm/arm.h gcc/config/arm/arm.h
+--- gcc.orig/config/arm/arm.h	2013-03-27 14:22:29.751731966 +0100
++++ gcc/config/arm/arm.h	2013-03-27 14:18:38.374353590 +0100
+@@ -109,6 +109,31 @@ extern char arm_arch_name[];
  	  builtin_define ("__ARM_ARCH_EXT_IDIV__");	\
      } while (0)
  
@@ -119,9 +102,10 @@ for all supported architectures. And these where appropriate:
  #include "config/arm/arm-opts.h"
  
  enum target_cpus
---- gcc/config/i386/i386.h	2013-01-28 20:42:55.000000000 +0000
-+++ gcc/config/i386/i386.h	2013-03-20 16:26:18.754235724 +0000
-@@ -588,6 +588,24 @@ extern const char *host_detect_local_cpu
+diff -urp gcc.orig/config/i386/i386.h gcc/config/i386/i386.h
+--- gcc.orig/config/i386/i386.h	2013-03-27 14:22:29.725731475 +0100
++++ gcc/config/i386/i386.h	2013-03-27 12:54:56.518631277 +0100
+@@ -572,6 +572,24 @@ extern const char *host_detect_local_cpu
  /* Target CPU builtins.  */
  #define TARGET_CPU_CPP_BUILTINS() ix86_target_macros ()
  
@@ -146,9 +130,10 @@ for all supported architectures. And these where appropriate:
  /* Target Pragmas.  */
  #define REGISTER_TARGET_PRAGMAS() ix86_register_pragmas ()
  
---- gcc/config/ia64/ia64.h	2013-01-10 20:38:27.000000000 +0000
-+++ gcc/config/ia64/ia64.h	2013-03-20 16:26:18.766235724 +0000
-@@ -40,6 +40,13 @@ do {						\
+diff -urp gcc.orig/config/ia64/ia64.h gcc/config/ia64/ia64.h
+--- gcc.orig/config/ia64/ia64.h	2013-03-27 14:22:29.719731361 +0100
++++ gcc/config/ia64/ia64.h	2013-03-27 12:54:56.520631314 +0100
+@@ -41,6 +41,13 @@ do {						\
  	  builtin_define("__BIG_ENDIAN__");	\
  } while (0)
  
@@ -162,9 +147,10 @@ for all supported architectures. And these where appropriate:
  #ifndef SUBTARGET_EXTRA_SPECS
  #define SUBTARGET_EXTRA_SPECS
  #endif
---- gcc/config/mips/mips.h	2013-02-25 13:53:16.000000000 +0000
-+++ gcc/config/mips/mips.h	2013-03-20 16:26:18.778235723 +0000
-@@ -551,6 +551,54 @@ struct mips_cpu_info {
+diff -urp gcc.orig/config/mips/mips.h gcc/config/mips/mips.h
+--- gcc.orig/config/mips/mips.h	2013-03-27 14:22:29.756732061 +0100
++++ gcc/config/mips/mips.h	2013-03-27 14:20:50.537856311 +0100
+@@ -561,6 +561,54 @@ struct mips_cpu_info {
      }									\
    while (0)
  
@@ -208,7 +194,7 @@ for all supported architectures. And these where appropriate:
 +      builtin_define("MIPS_HardFloat");					\
 +      builtin_define("D_HardFloat");					\
 +    }									\
-+    else if (TARGET_SOFT_FLOAT_ABI)					\
++    else if(TARGET_SOFT_FLOAT_ABI)					\
 +    {									\
 +      builtin_define("MIPS_SoftFloat");					\
 +      builtin_define("D_SoftFloat");					\
@@ -219,9 +205,10 @@ for all supported architectures. And these where appropriate:
  /* Default target_flags if no switches are specified  */
  
  #ifndef TARGET_DEFAULT
---- gcc/config/pa/pa.h	2013-02-03 19:52:37.000000000 +0000
-+++ gcc/config/pa/pa.h	2013-03-20 16:26:18.870235724 +0000
-@@ -185,6 +185,20 @@ do {								\
+diff -urp gcc.orig/config/pa/pa.h gcc/config/pa/pa.h
+--- gcc.orig/config/pa/pa.h	2013-03-27 14:22:29.792732741 +0100
++++ gcc/config/pa/pa.h	2013-03-27 12:54:56.525631405 +0100
+@@ -187,6 +187,20 @@ do {								\
         builtin_define("_PA_RISC1_0");				\
  } while (0)
  
@@ -242,9 +229,10 @@ for all supported architectures. And these where appropriate:
  /* An old set of OS defines for various BSD-like systems.  */
  #define TARGET_OS_CPP_BUILTINS()				\
    do								\
---- gcc/config/rs6000/rs6000.h	2013-02-09 09:30:45.000000000 +0000
-+++ gcc/config/rs6000/rs6000.h	2013-03-20 16:26:19.058235728 +0000
-@@ -613,6 +613,28 @@ extern unsigned char rs6000_recip_bits[]
+diff -urp gcc.orig/config/rs6000/rs6000.h gcc/config/rs6000/rs6000.h
+--- gcc.orig/config/rs6000/rs6000.h	2013-03-27 14:22:29.764732213 +0100
++++ gcc/config/rs6000/rs6000.h	2013-03-27 14:21:30.601614010 +0100
+@@ -560,6 +560,28 @@ extern unsigned char rs6000_recip_bits[]
  #define TARGET_CPU_CPP_BUILTINS() \
    rs6000_cpu_cpp_builtins (pfile)
  
@@ -273,9 +261,10 @@ for all supported architectures. And these where appropriate:
  /* This is used by rs6000_cpu_cpp_builtins to indicate the byte order
     we're compiling for.  Some configurations may need to override it.  */
  #define RS6000_CPU_CPP_ENDIAN_BUILTINS()	\
---- gcc/config/s390/s390.h	2013-03-05 12:02:06.000000000 +0000
-+++ gcc/config/s390/s390.h	2013-03-20 16:26:19.094235727 +0000
-@@ -108,6 +108,22 @@ enum processor_flags
+diff -urp gcc.orig/config/s390/s390.h gcc/config/s390/s390.h
+--- gcc.orig/config/s390/s390.h	2013-03-27 14:22:29.744731834 +0100
++++ gcc/config/s390/s390.h	2013-03-27 12:54:56.527631442 +0100
+@@ -104,6 +104,22 @@ enum processor_flags
      }							\
    while (0)
  
@@ -298,11 +287,12 @@ for all supported architectures. And these where appropriate:
  #ifdef DEFAULT_TARGET_64BIT
  #define TARGET_DEFAULT             (MASK_64BIT | MASK_ZARCH | MASK_HARD_DFP)
  #else
---- gcc/config/sh/sh.h	2013-03-13 18:09:10.000000000 +0000
-+++ gcc/config/sh/sh.h	2013-03-20 16:26:19.102235728 +0000
-@@ -31,6 +31,22 @@ extern int code_for_indirect_jump_scratc
- 
- #define TARGET_CPU_CPP_BUILTINS() sh_cpu_cpp_builtins (pfile)
+diff -urp gcc.orig/config/sh/sh.h gcc/config/sh/sh.h
+--- gcc.orig/config/sh/sh.h	2013-03-27 14:22:29.727731512 +0100
++++ gcc/config/sh/sh.h	2013-03-27 12:54:56.528631460 +0100
+@@ -95,6 +95,22 @@ do { \
+ 		  ? "__LITTLE_ENDIAN__" : "__BIG_ENDIAN__"); \
+ } while (0)
  
 +/* Target CPU builtins for D.  */
 +#define TARGET_CPU_D_BUILTINS()			\
@@ -323,9 +313,10 @@ for all supported architectures. And these where appropriate:
  /* Value should be nonzero if functions must have frame pointers.
     Zero means the frame pointer need not be set up (and parms may be accessed
     via the stack pointer) in functions that seem suitable.  */
---- gcc/config/sparc/sparc.h	2013-01-10 20:38:27.000000000 +0000
-+++ gcc/config/sparc/sparc.h	2013-03-20 16:26:19.110235727 +0000
-@@ -27,6 +27,31 @@ along with GCC; see the file COPYING3.
+diff -urp gcc.orig/config/sparc/sparc.h gcc/config/sparc/sparc.h
+--- gcc.orig/config/sparc/sparc.h	2013-03-27 14:22:29.794732778 +0100
++++ gcc/config/sparc/sparc.h	2013-03-27 14:22:06.164286252 +0100
+@@ -29,6 +29,31 @@ along with GCC; see the file COPYING3.
  
  #define TARGET_CPU_CPP_BUILTINS() sparc_target_macros ()
  

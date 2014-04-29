@@ -22,7 +22,7 @@
 
 // GMP is C++-aware, so we cannot included it in an extern "C" block.
 #include "gmp.h"
-
+extern "C" {
 #include "system.h"
 #include "coretypes.h"
 #include "tm.h"
@@ -33,6 +33,7 @@
 #include "ggc.h"
 #include "flags.h"
 #include "diagnostic.h"
+#include "output.h"
 #include "tree-inline.h"
 
 #include "real.h"
@@ -51,6 +52,7 @@
 
 #include "common/common-target.h"
 
+} //extern "C"
 #ifdef optimize
 #undef optimize
 #endif
