@@ -324,6 +324,11 @@ convert_expr (tree exp, Type *etype, Type *totype)
 	  }
 
 	// The offset can only be determined at runtime, do dynamic cast
+	if (global.params.typeinfo != FEATUREavailable)
+	  {
+	    error (featureMessage(global.params.typeinfo), "typeinfo");
+	    return error_mark_node;
+	  }
 	tree args[2];
 	args[0] = exp;
 	args[1] = build_address (cdfrom->toSymbol()->Stree);
@@ -2236,12 +2241,14 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_NEWCLASS:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::typeinfoclass->type->constOf());
 	  treturn = build_object_type();
 	  break;
 
 	case LIBCALL_NEWARRAYT:
 	case LIBCALL_NEWARRAYIT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
 	  treturn = Type::tvoid->arrayOf();
@@ -2249,6 +2256,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_NEWARRAYMTX:
 	case LIBCALL_NEWARRAYMITX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
 	  targs.push (Type::tsize_t);
@@ -2257,6 +2265,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_NEWITEMT:
 	case LIBCALL_NEWITEMIT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  treturn = Type::tvoidptr;
 	  break;
@@ -2277,6 +2286,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_DELARRAYT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::tvoid->arrayOf()->pointerTo());
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  break;
@@ -2292,6 +2302,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_ARRAYSETLENGTHT:
 	case LIBCALL_ARRAYSETLENGTHIT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
 	  targs.push (Type::tvoid->arrayOf()->pointerTo());
@@ -2300,6 +2311,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_DYNAMIC_CAST:
 	case LIBCALL_INTERFACE_CAST:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (build_object_type());
 	  targs.push (Type::typeinfoclass->type);
 	  treturn = build_object_type();
@@ -2307,6 +2319,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_ADEQ2:
 	case LIBCALL_ADCMP2:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::tvoid->arrayOf());
 	  targs.push (Type::tvoid->arrayOf());
 	  targs.push (Type::dtypeinfo->type->constOf());
@@ -2314,6 +2327,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_AAEQUAL:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (aatype);
 	  targs.push (aatype);
@@ -2321,6 +2335,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_AAINX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (aatype);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tvoidptr);
@@ -2328,6 +2343,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_AAGETX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (aatype->pointerTo());
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
@@ -2336,6 +2352,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_AAGETRVALUEX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (aatype);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
@@ -2344,6 +2361,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_AADELX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (aatype);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tvoidptr);
@@ -2365,6 +2383,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_ARRAYCATT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tint8->arrayOf());
 	  targs.push (Type::tint8->arrayOf());
@@ -2372,6 +2391,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_ARRAYCATNT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  // Currently 'uint', even if 64-bit
 	  targs.push (Type::tuns32);
@@ -2380,6 +2400,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_ARRAYAPPENDT:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type); //->constOf());
 	  targs.push (Type::tint8->arrayOf()->pointerTo());
 	  targs.push (Type::tint8->arrayOf());
@@ -2407,6 +2428,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_ARRAYASSIGN:
 	case LIBCALL_ARRAYCTOR:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tvoid->arrayOf());
 	  targs.push (Type::tvoid->arrayOf());
@@ -2415,6 +2437,7 @@ get_libcall (LibCall libcall)
 
 	case LIBCALL_ARRAYSETASSIGN:
 	case LIBCALL_ARRAYSETCTOR:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::tvoidptr);
 	  targs.push (Type::tvoidptr);
 	  targs.push (Type::tsize_t);
@@ -2446,6 +2469,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_ASSOCARRAYLITERALTX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tvoid->arrayOf());
 	  targs.push (Type::tvoid->arrayOf());
@@ -2453,6 +2477,7 @@ get_libcall (LibCall libcall)
 	  break;
 
 	case LIBCALL_ARRAYLITERALTX:
+	  gcc_assert (global.params.typeinfo == FEATUREavailable);
 	  targs.push (Type::dtypeinfo->type->constOf());
 	  targs.push (Type::tsize_t);
 	  treturn = Type::tvoidptr;

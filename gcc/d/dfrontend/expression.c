@@ -4323,6 +4323,12 @@ Expression *ArrayLiteralExp::semantic(Scope *sc)
         return new ErrorExp();
     expandTuples(elements);
 
+    if (global.params.typeinfo != FEATUREavailable && elements->dim != 0)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        return new ErrorExp();
+    }
+
     Type *t0;
     elements = arrayExpressionToCommonType(sc, elements, &t0);
 
@@ -4460,6 +4466,12 @@ Expression *AssocArrayLiteralExp::semantic(Scope *sc)
 
     if (type)
         return this;
+
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        return new ErrorExp();
+    }
 
     // Run semantic() on each element
     bool err_keys = arrayExpressionSemantic(keys, sc);
@@ -5097,6 +5109,12 @@ Expression *NewExp::semantic(Scope *sc)
 #endif
     if (type)                   // if semantic() already run
         return this;
+
+    if (global.params.typeinfo != FEATUREavailable && !onstack && !allocator)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        return new ErrorExp();
+    }
 
 Lagain:
     if (thisexp)
@@ -6351,7 +6369,12 @@ Expression *TypeidExp::semantic(Scope *sc)
         return new ErrorExp();
     }
 
-    if (ea && ta->toBasetype()->ty == Tclass)
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        e = new ErrorExp();
+    }
+    else if (ea && ta->toBasetype()->ty == Tclass)
     {
         /* Get the dynamic type, which is .classinfo
          */
@@ -6868,6 +6891,11 @@ Expression *BinExp::semantic(Scope *sc)
 #if LOGSEMANTIC
     printf("BinExp::semantic('%s')\n", toChars());
 #endif
+    if (global.params.typeinfo != FEATUREavailable && op == TOKremove)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        return new ErrorExp();
+    }
     e1 = e1->semantic(sc);
     e2 = e2->semantic(sc);
     if (e1->op == TOKerror || e2->op == TOKerror)
@@ -9785,6 +9813,11 @@ Expression *DeleteExp::semantic(Scope *sc)
 
         case Tarray:
         {
+            if (global.params.typeinfo != FEATUREavailable)
+            {
+                error (featureMessage(global.params.typeinfo), "typeinfo");
+                return new ErrorExp();
+            }
             Type *tv = tb->nextOf()->baseElemOf();
             if (tv->ty == Tstruct)
             {
@@ -10817,7 +10850,13 @@ Expression *IndexExp::semantic(Scope *sc)
         }
 
         case Taarray:
-        {   TypeAArray *taa = (TypeAArray *)t1;
+        {
+            if (global.params.typeinfo != FEATUREavailable)
+            {
+                error (featureMessage(global.params.typeinfo), "typeinfo");
+                return new ErrorExp();
+            }
+            TypeAArray *taa = (TypeAArray *)t1;
             /* We can skip the implicit conversion if they differ only by
              * constness (Bugzilla 2684, see also bug 2954b)
              */
@@ -11742,6 +11781,11 @@ Ltupleassign:
      */
     if (e1->op == TOKarraylength)
     {
+        if (global.params.typeinfo != FEATUREavailable)
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
         // e1 is not an lvalue, but we let code generator handle it
         ArrayLengthExp *ale = (ArrayLengthExp *)e1;
 
@@ -11933,6 +11977,23 @@ Ltupleassign:
         error("cannot modify compiler-generated variable __ctfe");
     }
 
+    if (global.params.typeinfo != FEATUREavailable && e1->op == TOKslice && op != TOKblit)
+    {
+        SliceExp *se = (SliceExp *) e1;
+        Type *stype = se->e1->type->toBasetype();
+        Type *etype = stype->nextOf()->toBasetype();
+
+        bool postblit = etype->baseElemOf()->ty == Tstruct && (((TypeStruct *) etype->baseElemOf())->sym)->postblit;
+        if (postblit
+            && ((e2->op != TOKslice && e2->isLvalue())
+            || (e2->op == TOKslice && ((UnaExp *) e2)->e1->isLvalue())
+            || (e2->op == TOKcast && ((UnaExp *) e2)->e1->isLvalue())))
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
+    }
+
     type = e1->type;
     assert(type);
     return op == TOKassign ? reorderSettingAAElem(sc) : this;
@@ -12015,6 +12076,11 @@ Expression *CatAssignExp::semantic(Scope *sc)
         )
        )
     {   // Append array
+        if (global.params.typeinfo != FEATUREavailable)
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
         e1->checkPostblit(sc, tb1next);
         e2 = e2->castTo(sc, e1->type);
         type = e1->type;
@@ -12414,6 +12480,12 @@ Expression *CatExp::semantic(Scope *sc)
     //printf("CatExp::semantic() %s\n", toChars());
     if (!type)
     {
+        if (global.params.typeinfo != FEATUREavailable)
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
+
         BinExp::semanticp(sc);
         e = op_overload(sc);
         if (e)
@@ -13233,6 +13305,12 @@ Expression *InExp::semantic(Scope *sc)
     if (type)
         return this;
 
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        error (featureMessage(global.params.typeinfo), "typeinfo");
+        return new ErrorExp();
+    }
+
     BinExp::semanticp(sc);
     e = op_overload(sc);
     if (e)
@@ -13349,6 +13427,11 @@ Expression *CmpExp::semantic(Scope *sc)
     if ((t1->ty == Tarray || t1->ty == Tsarray || t1->ty == Tpointer) &&
         (t2->ty == Tarray || t2->ty == Tsarray || t2->ty == Tpointer))
     {
+        if (global.params.typeinfo != FEATUREavailable)
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
         Type *t1next = t1->nextOf();
         Type *t2next = t2->nextOf();
         if (t1next->implicitConvTo(t2next) < MATCHconst &&
@@ -13628,6 +13711,21 @@ Expression *EqualExp::semantic(Scope *sc)
         return e;
 
     type = Type::tboolean;
+
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        if (t1->ty == Taarray && t2->ty == Taarray)
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
+        else if ((t1->ty == Tsarray || t1->ty == Tarray)
+                    && (t2->ty == Tsarray || t2->ty == Tarray))
+        {
+            error (featureMessage(global.params.typeinfo), "typeinfo");
+            return new ErrorExp();
+        }
+    }
 
     // Special handling for array comparisons
     if (!arrayTypeCompatible(loc, e1->type, e2->type))

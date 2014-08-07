@@ -2053,16 +2053,24 @@ Expression *VarDeclaration::callScopeDtor(Scope *sc)
         {
             if (type->toBasetype()->ty == Tsarray)
             {
-                // Typeinfo.destroy(cast(void*)&v);
-                Expression *ea = new SymOffExp(loc, this, 0, 0);
-                ea = new CastExp(loc, ea, Type::tvoid->pointerTo());
-                Expressions *args = new Expressions();
-                args->push(ea);
+                if (global.params.typeinfo != FEATUREavailable)
+                {
+                    error (featureMessage(global.params.typeinfo), "typeinfo");
+                    e = new ErrorExp();
+                }
+                else
+                {
+                    // Typeinfo.destroy(cast(void*)&v);
+                    Expression *ea = new SymOffExp(loc, this, 0, 0);
+                    ea = new CastExp(loc, ea, Type::tvoid->pointerTo());
+                    Expressions *args = new Expressions();
+                    args->push(ea);
 
-                Expression *et = type->getTypeInfo(sc);
-                et = new DotIdExp(loc, et, Id::destroy);
+                    Expression *et = type->getTypeInfo(sc);
+                    et = new DotIdExp(loc, et, Id::destroy);
 
-                e = new CallExp(loc, et, args);
+                    e = new CallExp(loc, et, args);
+                }
             }
             else
             {
@@ -2116,6 +2124,18 @@ void ObjectNotFound(Identifier *id)
     fatal();
 }
 
+/******************************************
+ */
+
+void TypeInfoAvailable(Identifier *id)
+{
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        Type::error(Loc(), featureMessage(global.params.typeinfo), "typeinfo");
+        fatal();
+    }
+}
+
 /******************************** SymbolDeclaration ********************************/
 
 SymbolDeclaration::SymbolDeclaration(Loc loc, StructDeclaration *dsym)
@@ -2150,6 +2170,7 @@ void ClassInfoDeclaration::semantic(Scope *sc)
 TypeInfoDeclaration::TypeInfoDeclaration(Type *tinfo, int internal)
     : VarDeclaration(Loc(), Type::dtypeinfo->type, tinfo->getTypeInfoIdent(internal), NULL)
 {
+    TypeInfoAvailable(Id::TypeInfo_Const);
     this->tinfo = tinfo;
     storage_class = STCstatic | STCgshared;
     protection = PROTpublic;
@@ -2188,6 +2209,7 @@ char *TypeInfoDeclaration::toChars()
 TypeInfoConstDeclaration::TypeInfoConstDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Const);
     if (!Type::typeinfoconst)
     {
         ObjectNotFound(Id::TypeInfo_Const);
@@ -2205,6 +2227,7 @@ TypeInfoConstDeclaration *TypeInfoConstDeclaration::create(Type *tinfo)
 TypeInfoInvariantDeclaration::TypeInfoInvariantDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Invariant);
     if (!Type::typeinfoinvariant)
     {
         ObjectNotFound(Id::TypeInfo_Invariant);
@@ -2222,6 +2245,7 @@ TypeInfoInvariantDeclaration *TypeInfoInvariantDeclaration::create(Type *tinfo)
 TypeInfoSharedDeclaration::TypeInfoSharedDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Shared);
     if (!Type::typeinfoshared)
     {
         ObjectNotFound(Id::TypeInfo_Shared);
@@ -2239,6 +2263,7 @@ TypeInfoSharedDeclaration *TypeInfoSharedDeclaration::create(Type *tinfo)
 TypeInfoWildDeclaration::TypeInfoWildDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Wild);
     if (!Type::typeinfowild)
     {
         ObjectNotFound(Id::TypeInfo_Wild);
@@ -2256,6 +2281,7 @@ TypeInfoWildDeclaration *TypeInfoWildDeclaration::create(Type *tinfo)
 TypeInfoStructDeclaration::TypeInfoStructDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Struct);
     if (!Type::typeinfostruct)
     {
         ObjectNotFound(Id::TypeInfo_Struct);
@@ -2273,6 +2299,7 @@ TypeInfoStructDeclaration *TypeInfoStructDeclaration::create(Type *tinfo)
 TypeInfoClassDeclaration::TypeInfoClassDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Class);
     if (!Type::typeinfoclass)
     {
         ObjectNotFound(Id::TypeInfo_Class);
@@ -2290,6 +2317,7 @@ TypeInfoClassDeclaration *TypeInfoClassDeclaration::create(Type *tinfo)
 TypeInfoInterfaceDeclaration::TypeInfoInterfaceDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Interface);
     if (!Type::typeinfointerface)
     {
         ObjectNotFound(Id::TypeInfo_Interface);
@@ -2307,6 +2335,7 @@ TypeInfoInterfaceDeclaration *TypeInfoInterfaceDeclaration::create(Type *tinfo)
 TypeInfoTypedefDeclaration::TypeInfoTypedefDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Typedef);
     if (!Type::typeinfotypedef)
     {
         ObjectNotFound(Id::TypeInfo_Typedef);
@@ -2324,6 +2353,7 @@ TypeInfoTypedefDeclaration *TypeInfoTypedefDeclaration::create(Type *tinfo)
 TypeInfoPointerDeclaration::TypeInfoPointerDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Pointer);
     if (!Type::typeinfopointer)
     {
         ObjectNotFound(Id::TypeInfo_Pointer);
@@ -2341,6 +2371,7 @@ TypeInfoPointerDeclaration *TypeInfoPointerDeclaration::create(Type *tinfo)
 TypeInfoArrayDeclaration::TypeInfoArrayDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Array);
     if (!Type::typeinfoarray)
     {
         ObjectNotFound(Id::TypeInfo_Array);
@@ -2358,6 +2389,7 @@ TypeInfoArrayDeclaration *TypeInfoArrayDeclaration::create(Type *tinfo)
 TypeInfoStaticArrayDeclaration::TypeInfoStaticArrayDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_StaticArray);
     if (!Type::typeinfostaticarray)
     {
         ObjectNotFound(Id::TypeInfo_StaticArray);
@@ -2375,6 +2407,7 @@ TypeInfoStaticArrayDeclaration *TypeInfoStaticArrayDeclaration::create(Type *tin
 TypeInfoAssociativeArrayDeclaration::TypeInfoAssociativeArrayDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_AssociativeArray);
     if (!Type::typeinfoassociativearray)
     {
         ObjectNotFound(Id::TypeInfo_AssociativeArray);
@@ -2392,6 +2425,7 @@ TypeInfoAssociativeArrayDeclaration *TypeInfoAssociativeArrayDeclaration::create
 TypeInfoVectorDeclaration::TypeInfoVectorDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Vector);
     if (!Type::typeinfovector)
     {
         ObjectNotFound(Id::TypeInfo_Vector);
@@ -2409,6 +2443,7 @@ TypeInfoVectorDeclaration *TypeInfoVectorDeclaration::create(Type *tinfo)
 TypeInfoEnumDeclaration::TypeInfoEnumDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Enum);
     if (!Type::typeinfoenum)
     {
         ObjectNotFound(Id::TypeInfo_Enum);
@@ -2426,6 +2461,7 @@ TypeInfoEnumDeclaration *TypeInfoEnumDeclaration::create(Type *tinfo)
 TypeInfoFunctionDeclaration::TypeInfoFunctionDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Function);
     if (!Type::typeinfofunction)
     {
         ObjectNotFound(Id::TypeInfo_Function);
@@ -2443,6 +2479,7 @@ TypeInfoFunctionDeclaration *TypeInfoFunctionDeclaration::create(Type *tinfo)
 TypeInfoDelegateDeclaration::TypeInfoDelegateDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Delegate);
     if (!Type::typeinfodelegate)
     {
         ObjectNotFound(Id::TypeInfo_Delegate);
@@ -2460,6 +2497,7 @@ TypeInfoDelegateDeclaration *TypeInfoDelegateDeclaration::create(Type *tinfo)
 TypeInfoTupleDeclaration::TypeInfoTupleDeclaration(Type *tinfo)
     : TypeInfoDeclaration(tinfo, 0)
 {
+    TypeInfoAvailable(Id::TypeInfo_Tuple);
     if (!Type::typeinfotypelist)
     {
         ObjectNotFound(Id::TypeInfo_Tuple);
