@@ -3908,6 +3908,13 @@ Expression *TypeArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int f
 
         if (dup) {
             static FuncDeclaration *adDup_fd = NULL;
+
+            if (global.params.typeinfo != FEATUREavailable)
+            {
+                error (e->loc, featureMessage(global.params.typeinfo), "typeinfo");
+                return new ErrorExp();
+            }
+
             if (!adDup_fd) {
                 Parameters* args = new Parameters;
                 args->push(new Parameter(STCin, Type::dtypeinfo->type, NULL, NULL));
@@ -3917,6 +3924,13 @@ Expression *TypeArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int f
             fd = adDup_fd;
         } else {
             static FuncDeclaration *adReverse_fd = NULL;
+
+            if (global.params.typeinfo != FEATUREavailable)
+            {
+                error (e->loc, featureMessage(global.params.typeinfo), "typeinfo");
+                return new ErrorExp();
+            }
+
             if (!adReverse_fd) {
                 Parameters* args = new Parameters;
                 args->push(new Parameter(STCin, Type::tvoid->arrayOf(), NULL, NULL));
@@ -3962,6 +3976,12 @@ Expression *TypeArray::dotExp(Scope *sc, Expression *e, Identifier *ident, int f
         static FuncDeclaration *fd = NULL;
         Expression *ec;
         Expressions *arguments;
+
+        if (global.params.typeinfo != FEATUREavailable)
+        {
+            error (e->loc, featureMessage(global.params.typeinfo), "typeinfo");
+            goto Lerror;
+        }
 
         if (!fd) {
             Parameters* args = new Parameters;
@@ -4788,6 +4808,12 @@ Type *TypeAArray::semantic(Loc loc, Scope *sc)
     //printf("TypeAArray::semantic() %s index->ty = %d\n", toChars(), index->ty);
     if (deco)
         return this;
+
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        error (loc, featureMessage(global.params.typeinfo), "typeinfo");
+        return Type::terror;
+    }
 
     this->loc = loc;
     this->sc = sc;
@@ -8956,6 +8982,12 @@ L1:
 
         if (ident == Id::classinfo)
         {
+            if (global.params.typeinfo != FEATUREavailable)
+            {
+                error (e->loc, featureMessage(global.params.typeinfo), "typeinfo");
+                return new ErrorExp();
+            }
+
             assert(Type::typeinfoclass);
             Type *t = Type::typeinfoclass->type;
             if (e->op == TOKtype || e->op == TOKdottype)

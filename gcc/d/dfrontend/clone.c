@@ -801,14 +801,22 @@ FuncDeclaration *StructDeclaration::buildPostBlit(Scope *sc)
                 }
                 else
                 {
-                    // Typeinfo.postblit(cast(void*)&this.v);
-                    Expression *ea = new AddrExp(loc, ex);
-                    ea = new CastExp(loc, ea, Type::tvoid->pointerTo());
+                    if (global.params.typeinfo != FEATUREavailable)
+                    {
+                        error (featureMessage(global.params.typeinfo), "typeinfo");
+                        e = new ErrorExp();
+                    }
+                    else
+                    {
+                        // Typeinfo.postblit(cast(void*)&this.v);
+                        Expression *ea = new AddrExp(loc, ex);
+                        ea = new CastExp(loc, ea, Type::tvoid->pointerTo());
 
-                    Expression *et = v->type->getTypeInfo(sc);
-                    et = new DotIdExp(loc, et, Id::postblit);
+                        Expression *et = v->type->getTypeInfo(sc);
+                        et = new DotIdExp(loc, et, Id::postblit);
 
-                    ex = new CallExp(loc, et, ea);
+                        ex = new CallExp(loc, et, ea);
+                    }
                 }
                 e = Expression::combine(e, ex); // combine in forward order
             }
