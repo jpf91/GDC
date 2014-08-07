@@ -2199,6 +2199,11 @@ Lagain:
             }
             else if (tab->ty == Tarray || tab->ty == Tsarray)
             {
+                if (global.params.utfForeach != FEATUREavailable)
+                {
+                    error (featureMessage(global.params.utfForeach), "utf deconding in foreach");
+                    return new ErrorStatement();
+                }
                 /* Call:
                  *      _aApply(aggr, flde)
                  */

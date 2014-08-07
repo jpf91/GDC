@@ -135,6 +135,10 @@ Generate ModuleInfo struct for output module
 frtti
 D
 
+futf-foreach
+D
+Enable runtime support for decoding UTF in foreach
+
 fonly=
 D Joined RejectNegative
 Process all modules specified on the command line, but only generate code for the module specified by the argument

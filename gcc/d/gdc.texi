@@ -182,6 +182,10 @@ Turns off generation of module information and related functions.
 @cindex @option{-fno-rtti}
 Turns off generation of runtime type information.
 
+@item -fno-utf-foreach
+@cindex @option{-fno-rtti}
+Turns off support for UTF decoding in foreach statements.
+
 @item -fd-verbose
 @cindex @option{-fd-verbose}
 Print information about D language processing to stdout.
