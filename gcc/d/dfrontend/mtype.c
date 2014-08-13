@@ -4809,12 +4809,6 @@ Type *TypeAArray::semantic(Loc loc, Scope *sc)
     if (deco)
         return this;
 
-    if (global.params.typeinfo != FEATUREavailable)
-    {
-        error (loc, featureMessage(global.params.typeinfo), "typeinfo");
-        return Type::terror;
-    }
-
     this->loc = loc;
     this->sc = sc;
     if (sc)
@@ -4848,6 +4842,17 @@ Type *TypeAArray::semantic(Loc loc, Scope *sc)
     else
         index = index->semantic(loc,sc);
     index = index->merge2();
+
+    if (global.params.associativeArray != FEATUREavailable)
+    {
+        error (loc, featureMessage(global.params.associativeArray), "associative array support");
+        return Type::terror;
+    }
+    if (global.params.typeinfo != FEATUREavailable)
+    {
+        error (loc, featureMessage(global.params.typeinfo), "typeinfo");
+        return Type::terror;
+    }
 
     if (index->nextOf() && !index->nextOf()->isImmutable())
     {

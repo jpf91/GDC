@@ -172,6 +172,7 @@ d_init_options (unsigned int, cl_decoded_option *decoded_options)
   global.params.allInst = 0;
   global.params.typeinfo = FEATUREavailable;
   global.params.utfForeach = FEATUREavailable;
+  global.params.associativeArray = FEATUREavailable;
 
   global.params.linkswitches = new Strings();
   global.params.libfiles = new Strings();
@@ -463,6 +464,10 @@ d_handle_option (size_t scode, const char *arg, int value,
 
     case OPT_futf_foreach:
       global.params.utfForeach = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fassociative_array:
+      global.params.associativeArray = value ? FEATUREavailable : FEATUREflag;
       break;
 
     case OPT_fignore_unknown_pragmas:

@@ -4467,6 +4467,11 @@ Expression *AssocArrayLiteralExp::semantic(Scope *sc)
     if (type)
         return this;
 
+    if (global.params.associativeArray != FEATUREavailable)
+    {
+        error (featureMessage(global.params.associativeArray), "associative array support");
+        return new ErrorExp();
+    }
     if (global.params.typeinfo != FEATUREavailable)
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
