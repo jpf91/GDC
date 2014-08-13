@@ -4809,6 +4809,11 @@ Type *TypeAArray::semantic(Loc loc, Scope *sc)
     if (deco)
         return this;
 
+    if (global.params.associativeArray != FEATUREavailable)
+    {
+        error (loc, featureMessage(global.params.associativeArray), "associative array support");
+        return Type::terror;
+    }
     if (global.params.typeinfo != FEATUREavailable)
     {
         error (loc, featureMessage(global.params.typeinfo), "typeinfo");
