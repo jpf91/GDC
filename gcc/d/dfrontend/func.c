@@ -4343,6 +4343,15 @@ void StaticCtorDeclaration::semantic(Scope *sc)
 
     FuncDeclaration::semantic(sc);
 
+    if (!isSharedStaticCtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS constructor");
+    }
+    else if (isSharedStaticCtorDeclaration() && global.params.moduleConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "module constructor");
+    }
+
     // We're going to need ModuleInfo
     Module *m = getModule();
     if (!m)
@@ -4475,6 +4484,15 @@ void StaticDtorDeclaration::semantic(Scope *sc)
     }
 
     FuncDeclaration::semantic(sc);
+
+    if (!isSharedStaticDtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS destructor");
+    }
+    else if (isSharedStaticDtorDeclaration() && global.params.moduleConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "module destructor");
+    }
 
     // We're going to need ModuleInfo
     Module *m = getModule();

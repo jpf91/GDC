@@ -228,6 +228,8 @@ struct Param
     FEATURE utfForeach; //foreach supports UTF decoding (aapply functions)
     FEATURE associativeArray; // Associative arrays are supported
     FEATURE stringSwitch; // switch supports strings
+    FEATURE tlsConstructor; // TLS constructors and destructors
+    FEATURE moduleConstructor; // Module constructors and destructors
 };
 
 struct Compiler
