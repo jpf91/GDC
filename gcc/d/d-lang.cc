@@ -471,6 +471,8 @@ d_handle_option (size_t scode, const char *arg, int value,
       global.params.typeinfo = FEATUREmicroD;
       global.params.associativeArray = FEATUREmicroD;
       global.params.utfForeach = FEATUREmicroD;
+      global.params.useSwitchError = false;
+      global.params.noboundscheck = true;
       break;
 
     case OPT_fignore_unknown_pragmas:
