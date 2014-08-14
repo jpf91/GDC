@@ -227,6 +227,7 @@ struct Param
     FEATURE typeinfo;   // TypeInfo is available
     FEATURE utfForeach; //foreach supports UTF decoding (aapply functions)
     FEATURE associativeArray; // Associative arrays are supported
+    FEATURE stringSwitch; // switch supports strings
 };
 
 struct Compiler
