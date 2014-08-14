@@ -467,6 +467,12 @@ d_handle_option (size_t scode, const char *arg, int value,
       global.params.associativeArray = value ? FEATUREavailable : FEATUREflag;
       break;
 
+    case OPT_microD:
+      global.params.typeinfo = FEATUREmicroD;
+      global.params.associativeArray = FEATUREmicroD;
+      global.params.utfForeach = FEATUREmicroD;
+      break;
+
     case OPT_fignore_unknown_pragmas:
       global.params.ignoreUnsupportedPragmas = value;
       break;

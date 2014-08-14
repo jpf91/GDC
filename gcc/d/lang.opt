@@ -143,6 +143,10 @@ fassociative-array
 D
 Enable runtime support for AAs
 
+microD
+D
+Use microD subset
+
 fonly=
 D Joined RejectNegative
 Process all modules specified on the command line, but only generate code for the module specified by the argument
