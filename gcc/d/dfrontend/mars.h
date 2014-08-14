@@ -62,6 +62,7 @@ the target object file format:
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #ifdef __DMC__
 #ifdef DEBUG
@@ -81,6 +82,29 @@ struct OutBuffer;
 template <typename TYPE> struct Array;
 typedef Array<class Identifier *> Identifiers;
 typedef Array<const char *> Strings;
+
+enum FEATURE
+{
+    FEATUREavailable, //Feature is available
+    FEATUREmicroD,    //Feature is not available because microD subset is active
+    FEATUREnoRuntime, //Feature is not available because runtime doesn't support it
+    FEATUREflag,      //Feature is not available because user disabled it
+};
+
+inline const char* featureMessage(FEATURE feat)
+{
+    switch (feat)
+    {
+        case FEATUREmicroD:
+            return "%s is not available in microD";
+        case FEATUREnoRuntime:
+            return "%s is not supported by runtime";
+        case FEATUREflag:
+            return "%s is disabled";
+        default:
+            assert(false);
+    }
+}
 
 // Put command line switches in here
 struct Param
