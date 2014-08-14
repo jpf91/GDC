@@ -48,12 +48,11 @@ IRState::startFunction (FuncDeclaration *decl)
 
   current_irstate = (IRState *) new_irs;
   ModuleInfo *mi = current_module_info;
-
-  if (decl->isSharedStaticCtorDeclaration())
+  if (decl->isSharedStaticCtorDeclaration() && !global.params.cLikeConstructors)
     mi->sharedctors.safe_push (decl);
   else if (decl->isStaticCtorDeclaration())
     mi->ctors.safe_push (decl);
-  else if (decl->isSharedStaticDtorDeclaration())
+  else if (decl->isSharedStaticDtorDeclaration() && !global.params.cLikeConstructors)
     {
       VarDeclaration *vgate;
       if ((vgate = decl->isSharedStaticDtorDeclaration()->vgate))

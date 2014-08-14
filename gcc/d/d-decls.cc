@@ -332,6 +332,17 @@ FuncDeclaration::toSymbol (void)
       DECL_LANG_SPECIFIC (fndecl) = build_d_decl_lang_specific (this);
       d_keep (fndecl);
 
+      if (global.params.cLikeConstructors
+	  && isSharedStaticCtorDeclaration())
+	{
+	  DECL_STATIC_CONSTRUCTOR (fndecl) = true;
+	}
+      else if (global.params.cLikeConstructors
+	  && isSharedStaticDtorDeclaration())
+	{
+	  DECL_STATIC_DESTRUCTOR (fndecl) = true;
+	}
+
       if (isNested())
 	{
 	  // Even if D-style nested functions are not implemented, add an

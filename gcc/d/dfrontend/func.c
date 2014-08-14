@@ -4311,7 +4311,7 @@ void StaticCtorDeclaration::semantic(Scope *sc)
     }
 
     if (!type)
-        type = new TypeFunction(NULL, Type::tvoid, false, LINKd);
+        type = new TypeFunction(NULL, Type::tvoid, false, global.params.cLikeConstructors ? LINKc : LINKd);
 
     /* If the static ctor appears within a template instantiation,
      * it could get called multiple times by the module constructors
@@ -4342,6 +4342,11 @@ void StaticCtorDeclaration::semantic(Scope *sc)
     }
 
     FuncDeclaration::semantic(sc);
+
+    if (!isSharedStaticCtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS constructor");
+    }
 
     // We're going to need ModuleInfo
     Module *m = getModule();
@@ -4442,7 +4447,7 @@ void StaticDtorDeclaration::semantic(Scope *sc)
     }
 
     if (!type)
-        type = new TypeFunction(NULL, Type::tvoid, false, LINKd, storage_class);
+        type = new TypeFunction(NULL, Type::tvoid, false, global.params.cLikeConstructors ? LINKc : LINKd, storage_class);
 
     /* If the static ctor appears within a template instantiation,
      * it could get called multiple times by the module constructors
@@ -4475,6 +4480,11 @@ void StaticDtorDeclaration::semantic(Scope *sc)
     }
 
     FuncDeclaration::semantic(sc);
+
+    if (!isSharedStaticDtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS destructor");
+    }
 
     // We're going to need ModuleInfo
     Module *m = getModule();
