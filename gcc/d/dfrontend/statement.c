@@ -3128,6 +3128,11 @@ Statement *SwitchStatement::semantic(Scope *sc)
         te = (TypeEnum *)condition->type;
     if (condition->type->isString())
     {
+        if (global.params.stringSwitch != FEATUREavailable)
+        {
+            error (featureMessage(global.params.stringSwitch), "switch with string values");
+            return new ErrorStatement();
+        }
         // If it's not an array, cast it to one
         if (condition->type->ty != Tarray)
         {

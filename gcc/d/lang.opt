@@ -143,6 +143,10 @@ fassociative-array
 D
 Enable runtime support for AAs
 
+fstring-switch
+D
+Enable support for strings in switch statement
+
 microD
 D
 Use microD subset
