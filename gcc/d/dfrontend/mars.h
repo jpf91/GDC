@@ -225,6 +225,7 @@ struct Param
     const char *mapfile;
     // Language features which can be disabled (e.g. in microD)
     FEATURE typeinfo;   // TypeInfo is available
+    FEATURE moduleinfo; // ModuleInfo is available
     FEATURE utfForeach; //foreach supports UTF decoding (aapply functions)
     FEATURE associativeArray; // Associative arrays are supported
     FEATURE stringSwitch; // switch supports strings

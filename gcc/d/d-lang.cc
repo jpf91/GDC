@@ -171,6 +171,7 @@ d_init_options (unsigned int, cl_decoded_option *decoded_options)
   global.params.betterC = 0;
   global.params.allInst = 0;
   global.params.typeinfo = FEATUREavailable;
+  global.params.moduleinfo = FEATUREavailable;
   global.params.utfForeach = FEATUREavailable;
   global.params.associativeArray = FEATUREavailable;
   global.params.stringSwitch = FEATUREavailable;
@@ -465,6 +466,10 @@ d_handle_option (size_t scode, const char *arg, int value,
       global.params.typeinfo = value ? FEATUREavailable : FEATUREflag;
       break;
 
+    case OPT_fmoduleinfo:
+      global.params.moduleinfo = value ? FEATUREavailable : FEATUREflag;
+      break;
+
     case OPT_futf_foreach:
       global.params.utfForeach = value ? FEATUREavailable : FEATUREflag;
       break;
@@ -479,6 +484,7 @@ d_handle_option (size_t scode, const char *arg, int value,
 
     case OPT_microD:
       global.params.typeinfo = FEATUREmicroD;
+      global.params.moduleinfo = FEATUREmicroD;
       global.params.associativeArray = FEATUREmicroD;
       global.params.utfForeach = FEATUREmicroD;
       global.params.stringSwitch = FEATUREmicroD;

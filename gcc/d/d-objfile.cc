@@ -1465,7 +1465,7 @@ Module::genobjfile (int)
 
   // Default behaviour is to always generate module info because of templates.
   // Can be switched off for not compiling against runtime library.
-  if (!nomoduleinfo && !global.params.betterC && ident != Id::entrypoint)
+  if (!nomoduleinfo && global.params.moduleinfo == FEATUREavailable && ident != Id::entrypoint)
     {
       ModuleInfo *mi = current_module_info;
 

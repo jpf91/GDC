@@ -135,6 +135,10 @@ Generate ModuleInfo struct for output module
 frtti
 D
 
+fmoduleinfo
+D
+Generate module info
+
 futf-foreach
 D
 Enable runtime support for decoding UTF in foreach
