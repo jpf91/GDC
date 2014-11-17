@@ -497,6 +497,10 @@ FuncDeclaration *StructDeclaration::buildXopEquals(Scope *sc)
 
     if (!xerreq)
     {
+        // Not supported in microD
+        if (global.params.typeinfo != FEATUREavailable)
+            return NULL;
+
         // object._xopEquals
         Identifier *id = Lexer::idPool("_xopEquals");
         Expression *e = new IdentifierExp(loc, Id::empty);
@@ -624,6 +628,10 @@ FuncDeclaration *StructDeclaration::buildXopCmp(Scope *sc)
 
     if (!xerrcmp)
     {
+        // Not supported in microD
+        if (global.params.typeinfo != FEATUREavailable)
+            return NULL;
+
         // object._xopCmp
         Identifier *id = Lexer::idPool("_xopCmp");
         Expression *e = new IdentifierExp(loc, Id::empty);
