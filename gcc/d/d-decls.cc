@@ -331,6 +331,25 @@ FuncDeclaration::toSymbol (void)
       TREE_TYPE (fndecl) = ftype->toCtype();
       DECL_LANG_SPECIFIC (fndecl) = build_d_decl_lang_specific (this);
       d_keep (fndecl);
+      
+      if (getUDA ("cctor", userAttribDecl))
+	{
+	  TypeFunction* t = (TypeFunction*)type;
+	  if (t->parameters->dim != 0 || t->linkage != LINKc
+	    || t->next != Type::tvoid)
+	    error("Invalid function signature for c constructor");
+
+	  DECL_STATIC_CONSTRUCTOR (fndecl) = true;
+	}
+      if (getUDA ("cdtor", userAttribDecl))
+	{
+	  TypeFunction* t = (TypeFunction*)type;
+	  if (t->parameters->dim != 0 || t->linkage != LINKc
+	    || t->next != Type::tvoid)
+	    error("Invalid function signature for c destructor");
+
+	  DECL_STATIC_DESTRUCTOR (fndecl) = true;
+	}
 
       if (isNested())
 	{
