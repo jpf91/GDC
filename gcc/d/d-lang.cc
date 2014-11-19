@@ -177,6 +177,7 @@ d_init_options (unsigned int, cl_decoded_option *decoded_options)
   global.params.stringSwitch = FEATUREavailable;
   global.params.tlsConstructor = FEATUREavailable;
   global.params.moduleConstructor = FEATUREavailable;
+  global.params.tlsVariables = FEATUREavailable;
 
   global.params.linkswitches = new Strings();
   global.params.libfiles = new Strings();
@@ -482,6 +483,10 @@ d_handle_option (size_t scode, const char *arg, int value,
       global.params.stringSwitch = value ? FEATUREavailable : FEATUREflag;
       break;
 
+    case OPT_ftls_support:
+      global.params.tlsVariables = value ? FEATUREavailable : FEATUREflag;
+      break;
+
     case OPT_microD:
       global.params.typeinfo = FEATUREmicroD;
       global.params.moduleinfo = FEATUREmicroD;
@@ -490,6 +495,7 @@ d_handle_option (size_t scode, const char *arg, int value,
       global.params.stringSwitch = FEATUREmicroD;
       global.params.tlsConstructor = FEATUREmicroD;
       global.params.moduleConstructor = FEATUREmicroD;
+      global.params.tlsVariables = FEATUREmicroD;
       global.params.useSwitchError = false;
       global.params.noboundscheck = true;
       break;

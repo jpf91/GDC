@@ -151,6 +151,10 @@ fstring-switch
 D
 Enable support for strings in switch statement
 
+ftls-support
+D
+Enable support for TLS variables
+
 microD
 D
 Use microD subset

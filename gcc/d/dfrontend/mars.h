@@ -231,6 +231,7 @@ struct Param
     FEATURE stringSwitch; // switch supports strings
     FEATURE tlsConstructor; // TLS constructors and destructors
     FEATURE moduleConstructor; // Module constructors and destructors
+    FEATURE tlsVariables; // TLS is available
 };
 
 struct Compiler

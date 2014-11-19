@@ -1617,6 +1617,12 @@ void VarDeclaration::semantic2(Scope *sc)
             }
         }
     }
+    if (global.params.tlsVariables != FEATUREavailable && isDataseg() && isThreadlocal())
+    {
+        error(featureMessage(global.params.tlsVariables), "Support for TLS variables");
+        type = Type::terror;
+    }
+
     sem = Semantic2Done;
 }
 
