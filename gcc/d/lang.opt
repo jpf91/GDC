@@ -155,6 +155,9 @@ ftls-support
 D
 Enable support for TLS variables
 
+fexceptions
+D
+
 microD
 D
 Use microD subset
