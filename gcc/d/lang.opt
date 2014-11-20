@@ -158,6 +158,10 @@ Enable support for TLS variables
 fexceptions
 D
 
+fclasses
+D
+Enable support for classes
+
 microD
 D
 Use microD subset

@@ -233,6 +233,7 @@ struct Param
     FEATURE moduleConstructor; // Module constructors and destructors
     FEATURE tlsVariables; // TLS is available
     FEATURE exceptions; // Exceptions are available
+    FEATURE classes; // Classes are available
 };
 
 struct Compiler

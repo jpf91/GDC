@@ -249,6 +249,14 @@ void ClassDeclaration::semantic(Scope *sc)
 
     //{ static int n;  if (++n == 20) *(char*)0=0; }
 
+    if (global.params.classes != FEATUREavailable)
+    {
+        error(featureMessage(global.params.classes), "Support for classes");
+        this->errors = true;
+        type = Type::terror;
+        return;
+    }
+
     if (!ident)         // if anonymous class
     {   const char *id = "__anonclass";
 
