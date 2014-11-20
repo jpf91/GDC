@@ -4323,7 +4323,7 @@ Expression *ArrayLiteralExp::semantic(Scope *sc)
         return new ErrorExp();
     expandTuples(elements);
 
-    if (global.params.typeinfo != FEATUREavailable && elements->dim != 0)
+    if (global.params.typeinfo != FEATUREavailable && elements->dim != 0 && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         return new ErrorExp();
@@ -4467,12 +4467,12 @@ Expression *AssocArrayLiteralExp::semantic(Scope *sc)
     if (type)
         return this;
 
-    if (global.params.associativeArray != FEATUREavailable)
+    if (global.params.associativeArray != FEATUREavailable && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.associativeArray), "associative array support");
         return new ErrorExp();
     }
-    if (global.params.typeinfo != FEATUREavailable)
+    if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         return new ErrorExp();
@@ -5115,7 +5115,7 @@ Expression *NewExp::semantic(Scope *sc)
     if (type)                   // if semantic() already run
         return this;
 
-    if (global.params.typeinfo != FEATUREavailable && !onstack && !allocator)
+    if (global.params.typeinfo != FEATUREavailable && !onstack && !allocator && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         return new ErrorExp();
@@ -6374,7 +6374,7 @@ Expression *TypeidExp::semantic(Scope *sc)
         return new ErrorExp();
     }
 
-    if (global.params.typeinfo != FEATUREavailable)
+    if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         e = new ErrorExp();
@@ -6896,7 +6896,7 @@ Expression *BinExp::semantic(Scope *sc)
 #if LOGSEMANTIC
     printf("BinExp::semantic('%s')\n", toChars());
 #endif
-    if (global.params.typeinfo != FEATUREavailable && op == TOKremove)
+    if (global.params.typeinfo != FEATUREavailable && op == TOKremove && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         return new ErrorExp();
@@ -9818,7 +9818,7 @@ Expression *DeleteExp::semantic(Scope *sc)
 
         case Tarray:
         {
-            if (global.params.typeinfo != FEATUREavailable)
+            if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
             {
                 error (featureMessage(global.params.typeinfo), "typeinfo");
                 return new ErrorExp();
@@ -10856,7 +10856,7 @@ Expression *IndexExp::semantic(Scope *sc)
 
         case Taarray:
         {
-            if (global.params.typeinfo != FEATUREavailable)
+            if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
             {
                 error (featureMessage(global.params.typeinfo), "typeinfo");
                 return new ErrorExp();
@@ -11786,7 +11786,7 @@ Ltupleassign:
      */
     if (e1->op == TOKarraylength)
     {
-        if (global.params.typeinfo != FEATUREavailable)
+        if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
         {
             error (featureMessage(global.params.typeinfo), "typeinfo");
             return new ErrorExp();
@@ -11982,7 +11982,7 @@ Ltupleassign:
         error("cannot modify compiler-generated variable __ctfe");
     }
 
-    if (global.params.typeinfo != FEATUREavailable && e1->op == TOKslice && op != TOKblit)
+    if (global.params.typeinfo != FEATUREavailable && e1->op == TOKslice && op != TOKblit && !(sc->flags & SCOPEctfe))
     {
         SliceExp *se = (SliceExp *) e1;
         Type *stype = se->e1->type->toBasetype();
@@ -12081,7 +12081,7 @@ Expression *CatAssignExp::semantic(Scope *sc)
         )
        )
     {   // Append array
-        if (global.params.typeinfo != FEATUREavailable)
+        if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
         {
             error (featureMessage(global.params.typeinfo), "typeinfo");
             return new ErrorExp();
@@ -12485,7 +12485,7 @@ Expression *CatExp::semantic(Scope *sc)
     //printf("CatExp::semantic() %s\n", toChars());
     if (!type)
     {
-        if (global.params.typeinfo != FEATUREavailable)
+        if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
         {
             error (featureMessage(global.params.typeinfo), "typeinfo");
             return new ErrorExp();
@@ -13310,7 +13310,7 @@ Expression *InExp::semantic(Scope *sc)
     if (type)
         return this;
 
-    if (global.params.typeinfo != FEATUREavailable)
+    if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
     {
         error (featureMessage(global.params.typeinfo), "typeinfo");
         return new ErrorExp();
@@ -13432,7 +13432,7 @@ Expression *CmpExp::semantic(Scope *sc)
     if ((t1->ty == Tarray || t1->ty == Tsarray || t1->ty == Tpointer) &&
         (t2->ty == Tarray || t2->ty == Tsarray || t2->ty == Tpointer))
     {
-        if (global.params.typeinfo != FEATUREavailable)
+        if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
         {
             error (featureMessage(global.params.typeinfo), "typeinfo");
             return new ErrorExp();
@@ -13717,7 +13717,7 @@ Expression *EqualExp::semantic(Scope *sc)
 
     type = Type::tboolean;
 
-    if (global.params.typeinfo != FEATUREavailable)
+    if (global.params.typeinfo != FEATUREavailable && !(sc->flags & SCOPEctfe))
     {
         if (t1->ty == Taarray && t2->ty == Taarray)
         {
