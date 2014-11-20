@@ -132,6 +132,40 @@ femit-moduleinfo
 D
 Generate ModuleInfo struct for output module
 
+frtti
+D
+
+fmoduleinfo
+D
+Generate module info
+
+futf-foreach
+D
+Enable runtime support for decoding UTF in foreach
+
+fassociative-array
+D
+Enable runtime support for AAs
+
+fstring-switch
+D
+Enable support for strings in switch statement
+
+ftls-support
+D
+Enable support for TLS variables
+
+fexceptions
+D
+
+fclasses
+D
+Enable support for classes
+
+microD
+D
+Use microD subset
+
 fonly=
 D Joined RejectNegative
 Process all modules specified on the command line, but only generate code for the module specified by the argument

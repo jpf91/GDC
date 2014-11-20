@@ -48,7 +48,6 @@ IRState::startFunction (FuncDeclaration *decl)
 
   current_irstate = (IRState *) new_irs;
   ModuleInfo *mi = current_module_info;
-
   if (decl->isSharedStaticCtorDeclaration())
     mi->sharedctors.safe_push (decl);
   else if (decl->isStaticCtorDeclaration())

@@ -47,7 +47,9 @@ Target::init (void)
   else
     gcc_unreachable();
 
-  if (POINTER_SIZE == 32)
+  if (POINTER_SIZE == 16)
+    Tptrdiff_t = Tint16;
+  else if (POINTER_SIZE == 32)
     Tptrdiff_t = Tint32;
   else if (POINTER_SIZE == 64)
     Tptrdiff_t = Tint64;

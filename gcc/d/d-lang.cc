@@ -38,6 +38,7 @@
 
 static tree d_handle_noinline_attribute (tree *, tree, tree, int, bool *);
 static tree d_handle_forceinline_attribute (tree *, tree, tree, int, bool *);
+static tree d_handle_inlineonly_attribute (tree *, tree, tree, int, bool *);
 static tree d_handle_flatten_attribute (tree *, tree, tree, int, bool *);
 static tree d_handle_target_attribute (tree *, tree, tree, int, bool *);
 static tree d_handle_noclone_attribute (tree *, tree, tree, int, bool *);
@@ -51,6 +52,8 @@ static const attribute_spec d_attribute_table[] =
 				d_handle_noinline_attribute, false },
     { "forceinline",            0, 0, true,  false, false,
 				d_handle_forceinline_attribute, false },
+    { "inlineonly",             0, 0, true,  false, false,
+				d_handle_inlineonly_attribute, false },
     { "flatten",                0, 0, true,  false, false,
 				d_handle_flatten_attribute, false },
     { "target",                 1, -1, true, false, false,
@@ -167,6 +170,16 @@ d_init_options (unsigned int, cl_decoded_option *decoded_options)
   global.params.useDeprecated = 1;
   global.params.betterC = 0;
   global.params.allInst = 0;
+  global.params.typeinfo = FEATUREavailable;
+  global.params.moduleinfo = FEATUREavailable;
+  global.params.utfForeach = FEATUREavailable;
+  global.params.associativeArray = FEATUREavailable;
+  global.params.stringSwitch = FEATUREavailable;
+  global.params.tlsConstructor = FEATUREavailable;
+  global.params.moduleConstructor = FEATUREavailable;
+  global.params.tlsVariables = FEATUREavailable;
+  global.params.exceptions = FEATUREavailable;
+  global.params.classes = FEATUREavailable;
 
   global.params.linkswitches = new Strings();
   global.params.libfiles = new Strings();
@@ -450,6 +463,53 @@ d_handle_option (size_t scode, const char *arg, int value,
 
     case OPT_femit_moduleinfo:
       global.params.betterC = !value;
+      break;
+
+    case OPT_frtti:
+      global.params.typeinfo = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fmoduleinfo:
+      global.params.moduleinfo = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_futf_foreach:
+      global.params.utfForeach = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fassociative_array:
+      global.params.associativeArray = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fstring_switch:
+      global.params.stringSwitch = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_ftls_support:
+      global.params.tlsVariables = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fexceptions:
+      global.params.exceptions = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_fclasses:
+      global.params.classes = value ? FEATUREavailable : FEATUREflag;
+      break;
+
+    case OPT_microD:
+      global.params.typeinfo = FEATUREmicroD;
+      global.params.moduleinfo = FEATUREmicroD;
+      global.params.associativeArray = FEATUREmicroD;
+      global.params.utfForeach = FEATUREmicroD;
+      global.params.stringSwitch = FEATUREmicroD;
+      global.params.tlsConstructor = FEATUREmicroD;
+      global.params.moduleConstructor = FEATUREmicroD;
+      global.params.tlsVariables = FEATUREmicroD;
+      global.params.exceptions = FEATUREmicroD;
+      global.params.useSwitchError = false;
+      global.params.noboundscheck = true;
+      global.params.useInvariants = false;
       break;
 
     case OPT_fignore_unknown_pragmas:
@@ -1650,6 +1710,41 @@ d_handle_forceinline_attribute (tree *node, tree name,
       DECL_DECLARED_INLINE_P (*node) = 1;
       DECL_NO_INLINE_WARNING_P (*node) = 1;
       DECL_DISREGARD_INLINE_LIMITS (*node) = 1;
+    }
+  else
+    {
+      warning (OPT_Wattributes, "%qE attribute ignored", name);
+      *no_add_attrs = true;
+    }
+
+  return NULL_TREE;
+}
+
+/* Handle a "inlineonly" attribute.  */
+
+static tree
+d_handle_inlineonly_attribute (tree *node, tree name,
+				tree ARG_UNUSED (args),
+				int ARG_UNUSED (flags),
+				bool *no_add_attrs)
+{
+  Type *t = lang_dtype (TREE_TYPE (*node));
+
+  if (t->ty == Tfunction)
+    {
+      tree attributes = DECL_ATTRIBUTES (*node);
+
+      // Push attribute always_inline.
+      if (! lookup_attribute ("always_inline", attributes))
+	DECL_ATTRIBUTES (*node) = tree_cons (get_identifier ("always_inline"),
+					     NULL_TREE, attributes);
+
+      DECL_DECLARED_INLINE_P (*node) = 1;
+      DECL_NO_INLINE_WARNING_P (*node) = 1;
+      DECL_DISREGARD_INLINE_LIMITS (*node) = 1;
+      TREE_PUBLIC (*node) = 0;
+      DECL_WEAK (*node) = 0;
+      DECL_COMDAT (*node) = 0;
     }
   else
     {

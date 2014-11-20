@@ -1089,6 +1089,11 @@ void FuncDeclaration::semantic3(Scope *sc)
 
             if (f->linkage == LINKd)
             {   // Declare _arguments[]
+                if (global.params.typeinfo != FEATUREavailable)
+                {
+                    error (featureMessage(global.params.typeinfo), "typeinfo");
+                    return;
+                }
                 v_arguments = new VarDeclaration(Loc(), Type::typeinfotypelist->type, Id::_arguments_typeinfo, NULL);
                 v_arguments->storage_class |= STCtemp | STCparameter;
                 v_arguments->semantic(sc2);
@@ -1790,7 +1795,10 @@ void FuncDeclaration::semantic3(Scope *sc)
                         Expression *vsync;
                         if (isStatic())
                         {   // The monitor is in the ClassInfo
-                            vsync = new DotIdExp(loc, new DsymbolExp(loc, cd), Id::classinfo);
+                            if (global.params.typeinfo != FEATUREavailable)
+                                error (featureMessage(global.params.typeinfo), "typeinfo");
+                            else
+                                vsync = new DotIdExp(loc, new DsymbolExp(loc, cd), Id::classinfo);
                         }
                         else
                         {   // 'this' is the monitor
@@ -4335,6 +4343,15 @@ void StaticCtorDeclaration::semantic(Scope *sc)
 
     FuncDeclaration::semantic(sc);
 
+    if (!isSharedStaticCtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS constructor");
+    }
+    else if (isSharedStaticCtorDeclaration() && global.params.moduleConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "module constructor");
+    }
+
     // We're going to need ModuleInfo
     Module *m = getModule();
     if (!m)
@@ -4467,6 +4484,15 @@ void StaticDtorDeclaration::semantic(Scope *sc)
     }
 
     FuncDeclaration::semantic(sc);
+
+    if (!isSharedStaticDtorDeclaration() && global.params.tlsConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "TLS destructor");
+    }
+    else if (isSharedStaticDtorDeclaration() && global.params.moduleConstructor != FEATUREavailable)
+    {
+        error (featureMessage(global.params.tlsConstructor), "module destructor");
+    }
 
     // We're going to need ModuleInfo
     Module *m = getModule();

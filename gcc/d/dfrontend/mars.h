@@ -62,6 +62,7 @@ the target object file format:
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #ifdef __DMC__
 #ifdef DEBUG
@@ -81,6 +82,29 @@ struct OutBuffer;
 template <typename TYPE> struct Array;
 typedef Array<class Identifier *> Identifiers;
 typedef Array<const char *> Strings;
+
+enum FEATURE
+{
+    FEATUREavailable, //Feature is available
+    FEATUREmicroD,    //Feature is not available because microD subset is active
+    FEATUREnoRuntime, //Feature is not available because runtime doesn't support it
+    FEATUREflag,      //Feature is not available because user disabled it
+};
+
+inline const char* featureMessage(FEATURE feat)
+{
+    switch (feat)
+    {
+        case FEATUREmicroD:
+            return "%s is not available in microD";
+        case FEATUREnoRuntime:
+            return "%s is not supported by runtime";
+        case FEATUREflag:
+            return "%s is disabled";
+        default:
+            assert(false);
+    }
+}
 
 // Put command line switches in here
 struct Param
@@ -199,6 +223,17 @@ struct Param
     const char *resfile;
     const char *exefile;
     const char *mapfile;
+    // Language features which can be disabled (e.g. in microD)
+    FEATURE typeinfo;   // TypeInfo is available
+    FEATURE moduleinfo; // ModuleInfo is available
+    FEATURE utfForeach; //foreach supports UTF decoding (aapply functions)
+    FEATURE associativeArray; // Associative arrays are supported
+    FEATURE stringSwitch; // switch supports strings
+    FEATURE tlsConstructor; // TLS constructors and destructors
+    FEATURE moduleConstructor; // Module constructors and destructors
+    FEATURE tlsVariables; // TLS is available
+    FEATURE exceptions; // Exceptions are available
+    FEATURE classes; // Classes are available
 };
 
 struct Compiler

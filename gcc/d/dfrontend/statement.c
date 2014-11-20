@@ -2199,6 +2199,11 @@ Lagain:
             }
             else if (tab->ty == Tarray || tab->ty == Tsarray)
             {
+                if (global.params.utfForeach != FEATUREavailable)
+                {
+                    error (featureMessage(global.params.utfForeach), "utf deconding in foreach");
+                    return new ErrorStatement();
+                }
                 /* Call:
                  *      _aApply(aggr, flde)
                  */
@@ -3123,6 +3128,11 @@ Statement *SwitchStatement::semantic(Scope *sc)
         te = (TypeEnum *)condition->type;
     if (condition->type->isString())
     {
+        if (global.params.stringSwitch != FEATUREavailable)
+        {
+            error (featureMessage(global.params.stringSwitch), "switch with string values");
+            return new ErrorStatement();
+        }
         // If it's not an array, cast it to one
         if (condition->type->ty != Tarray)
         {
@@ -4587,6 +4597,12 @@ Statement *TryCatchStatement::semantic(Scope *sc)
     body = body->semanticScope(sc, NULL /*this*/, NULL);
     assert(body);
 
+    if (global.params.exceptions != FEATUREavailable)
+    {
+        error(featureMessage(global.params.exceptions), "Support for exceptions");
+        return new ErrorStatement();
+    }
+
     /* Even if body is empty, still do semantic analysis on catches
      */
     bool catchErrors = false;
@@ -4820,6 +4836,12 @@ Statement *TryFinallyStatement::semantic(Scope *sc)
 {
     //printf("TryFinallyStatement::semantic()\n");
     body = body->semantic(sc);
+    if (global.params.exceptions != FEATUREavailable)
+    {
+        error(featureMessage(global.params.exceptions), "Support for exceptions");
+        return new ErrorStatement();
+    }
+
     sc = sc->push();
     sc->tf = this;
     sc->sbreak = NULL;
@@ -4995,6 +5017,12 @@ Statement *ThrowStatement::semantic(Scope *sc)
     exp = resolveProperties(sc, exp);
     if (exp->op == TOKerror)
         return new ErrorStatement();
+        
+    if (global.params.exceptions != FEATUREavailable)
+    {
+        error(featureMessage(global.params.exceptions), "Support for exceptions");
+        return new ErrorStatement();
+    }
     ClassDeclaration *cd = exp->type->toBasetype()->isClassHandle();
     if (!cd || ((cd != ClassDeclaration::throwable) && !ClassDeclaration::throwable->isBaseOf(cd, NULL)))
     {
