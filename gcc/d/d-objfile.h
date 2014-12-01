@@ -86,6 +86,7 @@ extern dt_t **build_vptr_monitor (dt_t **pdt, ClassDeclaration *cd);
 extern tree dtvector_to_tree (dt_t *dt);
 
 extern void build_moduleinfo (Symbol *sym);
+extern void build_inline_info (Module *m);
 
 
 struct ModuleInfo
@@ -125,7 +126,7 @@ extern void setup_symbol_storage (Dsymbol *dsym, tree decl, bool is_public);
 extern void d_comdat_linkage (tree decl);
 
 extern void d_finish_symbol (Symbol *sym);
-extern void d_finish_function (FuncDeclaration *f);
+extern void d_finish_function (FuncDeclaration *f, bool emit);
 extern void d_finish_module (void);
 extern void d_finish_compilation (tree *vec, int len);
 

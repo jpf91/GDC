@@ -1031,9 +1031,9 @@ d_parse_file (void)
     goto had_errors;
 
   // Do pass 3 semantic analysis
-  for (size_t i = 0; i < modules.dim; i++)
+  for (size_t i = 0; i < Module::amodules.dim; i++)
     {
-      Module *m = modules[i];
+      Module *m = Module::amodules[i];
 
       if (global.params.verbose)
 	fprintf (global.stdmsg, "semantic3 %s\n", m->toChars());
@@ -1147,6 +1147,27 @@ d_parse_file (void)
 	  if (global.params.doDocComments)
 	    m->gendocfile();
 	}
+    }
+
+  //For cross-module inlining
+  for (size_t i = 0; i < Module::amodules.dim; i++)
+    {
+      Module *m = Module::amodules[i];
+
+      // Skip modules for which we emit functions
+      int skip = 0;
+      for (size_t j = 0; j < modules.dim; j++)
+	{
+	  if (modules[j] == m)
+	    {
+	      skip = 1;
+	      break;
+	    }
+	}
+      if (skip)
+        continue;
+
+      build_inline_info (m);
     }
 
   // And end the main input file, if the debug writer wants it.

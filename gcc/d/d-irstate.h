@@ -114,7 +114,7 @@ struct IRState
   // Static chain of function, for D2, this is a closure.
   tree sthis;
 
-  IRState *startFunction (FuncDeclaration *decl);
+  IRState *startFunction (FuncDeclaration *decl, bool emit);
   void endFunction (void);
 
   // Variables that are in scope that will need destruction later.

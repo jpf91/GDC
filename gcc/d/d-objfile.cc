@@ -1101,46 +1101,26 @@ output_declaration_p (Dsymbol *dsym)
   return true;
 }
 
-// Finish up a function declaration and compile it all the way
-// down to assembler language output.
-
-void
-FuncDeclaration::toObjFile (int)
+static void
+func_to_inline (FuncDeclaration* decl, bool emit)
 {
-  if (!global.params.useUnitTests && isUnitTestDeclaration())
+  if (!decl->fbody)
     return;
 
-  // Already generated the function.
-  if (semanticRun >= PASSobj)
-    return;
-
-  if (!output_declaration_p (this))
-    return;
-
-  tree fndecl = toSymbol()->Stree;
-
-  if (!fbody)
-    {
-      if (!isNested())
-	{
-	  // %% Should set this earlier...
-	  DECL_EXTERNAL (fndecl) = 1;
-	  TREE_PUBLIC (fndecl) = 1;
-	}
-      rest_of_decl_compilation (fndecl, 1, 0);
-      return;
-    }
-
+  tree fndecl = decl->toSymbol()->Stree;
   if (global.errors)
     return;
 
   // Start generating code for this function.
-  gcc_assert(semanticRun == PASSsemantic3done);
+  if (!emit && decl->semanticRun != PASSsemantic3done)
+    return;
+
+  gcc_assert(decl->semanticRun == PASSsemantic3done);
 
   if (global.params.verbose)
-    fprintf (global.stdmsg, "function  %s\n", this->toPrettyChars());
+    fprintf (global.stdmsg, "function  %s\n", decl->toPrettyChars());
 
-  IRState *irs = current_irstate->startFunction (this);
+  IRState *irs = current_irstate->startFunction (decl, emit);
   // Default chain value is 'null' unless parent found.
   irs->sthis = null_pointer_node;
 
@@ -1151,14 +1131,14 @@ FuncDeclaration::toObjFile (int)
   tree return_type = TREE_TYPE (TREE_TYPE (fndecl));
   tree result_decl = build_decl (UNKNOWN_LOCATION, RESULT_DECL, NULL_TREE, return_type);
 
-  set_decl_location (result_decl, this);
+  set_decl_location (result_decl, decl);
   DECL_RESULT (fndecl) = result_decl;
   DECL_CONTEXT (result_decl) = fndecl;
   DECL_ARTIFICIAL (result_decl) = 1;
   DECL_IGNORED_P (result_decl) = 1;
 
   allocate_struct_function (fndecl, false);
-  set_function_end_locus (endloc);
+  set_function_end_locus (decl->endloc);
 
   tree parm_decl = NULL_TREE;
   tree param_list = NULL_TREE;
@@ -1166,33 +1146,33 @@ FuncDeclaration::toObjFile (int)
   // Special arguments...
 
   // 'this' parameter
-  // For nested functions, D still generates a vthis, but it
+  // For nested functions, decl still generates a vthis, but it
   // should not be referenced in any expression.
-  if (vthis)
+  if (decl->vthis)
     {
-      parm_decl = vthis->toSymbol()->Stree;
+      parm_decl = decl->vthis->toSymbol()->Stree;
       DECL_ARTIFICIAL (parm_decl) = 1;
       TREE_READONLY (parm_decl) = 1;
 
-      set_decl_location (parm_decl, vthis);
+      set_decl_location (parm_decl, decl->vthis);
       param_list = chainon (param_list, parm_decl);
       irs->sthis = parm_decl;
     }
 
   // _arguments parameter.
-  if (v_arguments)
+  if (decl->v_arguments)
     {
-      parm_decl = v_arguments->toSymbol()->Stree;
-      set_decl_location (parm_decl, v_arguments);
+      parm_decl = decl->v_arguments->toSymbol()->Stree;
+      set_decl_location (parm_decl, decl->v_arguments);
       param_list = chainon (param_list, parm_decl);
     }
 
   // formal function parameters.
-  size_t n_parameters = parameters ? parameters->dim : 0;
+  size_t n_parameters = decl->parameters ? decl->parameters->dim : 0;
 
   for (size_t i = 0; i < n_parameters; i++)
     {
-      VarDeclaration *param = (*parameters)[i];
+      VarDeclaration *param = (*decl->parameters)[i];
       parm_decl = param->toSymbol()->Stree;
       set_decl_location (parm_decl, (Dsymbol *) param);
       // chain them in the correct order
@@ -1206,15 +1186,15 @@ FuncDeclaration::toObjFile (int)
 
   irs->pushStatementList();
   irs->startScope();
-  irs->doLineNote (loc);
+  irs->doLineNote (decl->loc);
 
   // If this is a member function that nested (possibly indirectly) in another
   // function, construct an expession for this member function's static chain
   // by going through parent link of nested classes.
-  if (isThis())
+  if (decl->isThis())
     {
-      AggregateDeclaration *ad = isThis();
-      tree this_tree = vthis->toSymbol()->Stree;
+      AggregateDeclaration *ad = decl->isThis();
+      tree this_tree = decl->vthis->toSymbol()->Stree;
 
       while (ad->isNested())
 	{
@@ -1232,29 +1212,29 @@ FuncDeclaration::toObjFile (int)
     }
 
   // May change irs->sthis.
-  this->buildClosure (irs);
+  decl->buildClosure (irs);
 
-  if (vresult)
-    build_local_var (vresult, this);
+  if (decl->vresult)
+    build_local_var (decl->vresult, decl);
 
-  if (v_argptr)
+  if (decl->v_argptr)
     irs->pushStatementList();
 
-  if (v_arguments_var)
+  if (decl->v_arguments_var)
     {
-      gcc_assert (v_arguments_var->init->isVoidInitializer());
-      build_local_var (v_arguments_var, this);
+      gcc_assert (decl->v_arguments_var->init->isVoidInitializer());
+      build_local_var (decl->v_arguments_var, decl);
     }
 
   /* The fabled D named return value optimisation.
      Implemented by overriding all the RETURN_EXPRs and replacing all
      occurrences of VAR with the RESULT_DECL for the function.
      This is only worth doing for functions that return in memory.  */
-  nrvo_can = nrvo_can && aggregate_value_p (return_type, fndecl);
+  decl->nrvo_can = decl->nrvo_can && aggregate_value_p (return_type, fndecl);
 
-  if (nrvo_can && nrvo_var)
+  if (decl->nrvo_can && decl->nrvo_var)
     {
-      Symbol *nrvsym = nrvo_var->toSymbol();
+      Symbol *nrvsym = decl->nrvo_var->toSymbol();
       tree var = nrvsym->Stree;
 
       // Copy name from VAR to RESULT.
@@ -1265,16 +1245,16 @@ FuncDeclaration::toObjFile (int)
       nrvsym->SnamedResult = result_decl;
     }
 
-  build_ir (fbody, irs);
+  build_ir (decl->fbody, irs);
 
-  if (v_argptr)
+  if (decl->v_argptr)
     {
       tree body = irs->popStatementList();
-      tree var = get_decl_tree (v_argptr, this);
+      tree var = get_decl_tree (decl->v_argptr, decl);
       var = build_address (var);
 
       tree init_exp = d_build_call_nary (builtin_decl_explicit (BUILT_IN_VA_START), 2, var, parm_decl);
-      build_local_var (v_argptr, this);
+      build_local_var (decl->v_argptr, decl);
       irs->addExp (init_exp);
 
       tree cleanup = d_build_call_nary (builtin_decl_explicit (BUILT_IN_VA_END), 1, var);
@@ -1338,21 +1318,57 @@ FuncDeclaration::toObjFile (int)
     }
 
   if (!errorcount && !global.errors)
-    d_finish_function (this);
+    d_finish_function (decl, emit);
 
-  semanticRun = PASSobj;
+  decl->semanticRun = PASSobj;
 
   // Process all deferred nested functions.
-  for (size_t i = 0; i < this->deferred.dim; ++i)
+  for (size_t i = 0; i < decl->deferred.dim; ++i)
     {
-      FuncDeclaration *fd = this->deferred[i];
-      fd->toObjFile (0);
+      FuncDeclaration *fd = decl->deferred[i];
+      if(emit)
+        fd->toObjFile (0);
+      else
+        func_to_inline (decl, emit);
     }
 
   current_function_decl = old_current_function_decl;
   set_cfun (old_cfun);
 
   irs->endFunction();
+}
+
+// Finish up a function declaration and compile it all the way
+// down to assembler language output.
+
+void
+FuncDeclaration::toObjFile (int)
+{
+  if (!global.params.useUnitTests && isUnitTestDeclaration())
+    return;
+
+  // Already generated the function.
+  if (semanticRun >= PASSobj)
+    return;
+
+  if (!output_declaration_p (this))
+    return;
+
+  tree fndecl = toSymbol()->Stree;
+
+  if (!fbody)
+    {
+      if (!isNested())
+	{
+	  // %% Should set this earlier...
+	  DECL_EXTERNAL (fndecl) = 1;
+	  TREE_PUBLIC (fndecl) = 1;
+	}
+      rest_of_decl_compilation (fndecl, 1, 0);
+      return;
+    }
+
+  func_to_inline (this, true);
 }
 
 
@@ -1876,7 +1892,7 @@ d_finish_symbol (Symbol *sym)
 }
 
 void
-d_finish_function (FuncDeclaration *fd)
+d_finish_function (FuncDeclaration *fd, bool emit)
 {
   Symbol *s = fd->toSymbol();
   tree decl = s->Stree;
@@ -1889,15 +1905,22 @@ d_finish_function (FuncDeclaration *fd)
       DECL_EXTERNAL (decl) = 0;
     }
 
-  d_add_global_declaration (decl);
+  if (emit)
+  {
+    d_add_global_declaration (decl);
 
-  if (!targetm.have_ctors_dtors)
-    {
-      if (DECL_STATIC_CONSTRUCTOR (decl))
-	static_ctor_list.safe_push (fd);
-      if (DECL_STATIC_DESTRUCTOR (decl))
-	static_dtor_list.safe_push (fd);
-    }
+    if (!targetm.have_ctors_dtors)
+      {
+	if (DECL_STATIC_CONSTRUCTOR (decl))
+	  static_ctor_list.safe_push (fd);
+	if (DECL_STATIC_DESTRUCTOR (decl))
+	  static_dtor_list.safe_push (fd);
+      }
+  }
+  else
+  {
+    DECL_EXTERNAL (decl) = 1;
+  }
 
   // Build cgraph for function.
   struct cgraph_node *node = cgraph_node::get_create (decl);
@@ -2374,3 +2397,89 @@ build_moduleinfo (Symbol *sym)
   build_simple_function ("*__modinit", vcompound_expr (m1, m2), true);
 }
 
+class InlineVisitor : public Visitor
+{
+public:
+  void visit (Dsymbol *s)
+  {
+    TupleDeclaration *td = s->isTupleDeclaration();
+    if (td == NULL)
+      return;
+
+    for (size_t i = 0; i < td->objects->dim; i++)
+      {
+	RootObject *o = (*td->objects)[i];
+	if ((o->dyncast() == DYNCAST_EXPRESSION) && ((Expression *) o)->op == TOKdsymbol)
+	  {
+	    Declaration *d = ((DsymbolExp *) o)->s->isDeclaration();
+	    if (d)
+	      d->accept (this);
+	  }
+      }
+  }
+
+  void visit (Module *s)
+  {
+    if (s->members)
+      {
+	for (size_t i = 0; i < s->members->dim; i++)
+	  {
+	    (*s->members)[i]->accept (this);
+	  }
+      }
+  }
+
+  void visit (AttribDeclaration *s)
+  {
+    Dsymbols *d = s->include (NULL, NULL);
+
+    if (!d)
+      return;
+
+    for (size_t i = 0; i < d->dim; i++)
+      {
+        (*d)[i]->accept (this);
+      }
+  }
+
+  void visit (AggregateDeclaration *s)
+  {
+    if (s->type->ty == Terror)
+      {
+	s->error ("had semantic errors when compiling");
+	return;
+      }
+
+    if (!s->members)
+      return;
+
+    for (size_t i = 0; i < s->members->dim; i++)
+      {
+	(*s->members)[i]->accept (this);
+      }
+  }
+
+  void visit (FuncDeclaration *s)
+  {
+    func_to_inline (s, false);
+  }
+
+  void visit (TemplateInstance *s)
+  {
+    if (isError (s)|| !s->members)
+      return;
+
+    for (size_t i = 0; i < s->members->dim; i++)
+      {
+	(*s->members)[i]->accept (this);
+      }
+  }
+};
+
+// Generate function bodies for all functions in module to enable inlining.
+
+void build_inline_info (Module *m)
+{
+  InlineVisitor inl = InlineVisitor();
+  m->accept(&inl);
+}
