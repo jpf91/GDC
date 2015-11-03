@@ -2,8 +2,24 @@ machine:
   services:
     - docker
 
+dependencies:
+  override:
+    - docker info
+    - docker pull jpf91/build-gdc:wip
+    - mkdir -p $HOME/docker-shared
+  cache_directories:
+    - "~/docker-shared/sources"
+
 test:
   override:
-    - docker pull jpf91/build-gdc:wip
-    - docker run jpf91/build-gdc:wip df -h
-    - docker run jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabi --keep-alive=60
+    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-linux-gnu --revision=snapshot:f72a00b  --keep-alive=60
+    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabi --revision=snapshot:f72a00b  --keep-alive=60
+    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabihf --revision=snapshot:f72a00b  --keep-alive=60
+    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-w64-mingw32 --revision=snapshot:f72a00b  --keep-alive=60
+    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/i686-w64-mingw32 --revision=snapshot:f72a00b  --keep-alive=60
+
+deployment:
+  nightly:
+    branch: travis-docker
+    commands:
+      - ls -R $HOME/docker-shared
