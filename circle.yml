@@ -15,11 +15,8 @@ dependencies:
 
 test:
   override:
-    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-linux-gnu --revision=snapshot:f72a00b  --keep-alive=60
-    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabi --revision=snapshot:f72a00b  --keep-alive=60
-    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabihf --revision=snapshot:f72a00b  --keep-alive=60
-    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-w64-mingw32 --revision=snapshot:f72a00b  --keep-alive=60
-    - docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/i686-w64-mingw32 --revision=snapshot:f72a00b  --keep-alive=60
+    - case $CIRCLE_NODE_INDEX in 0) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-linux-gnu --keep-alive=60; docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/i686-w64-mingw32 --keep-alive=60 ;; 1) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabihf --keep-alive=60 ;; 2) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-w64-mingw32 --keep-alive=60 ;; 3) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabi --keep-alive=60 ;; esac:
+        parallel: true
 
 deployment:
   nightly:
