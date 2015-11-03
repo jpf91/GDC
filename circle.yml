@@ -3,12 +3,15 @@ machine:
     - docker
 
 dependencies:
-  override:
-    - docker info
-    - docker pull jpf91/build-gdc:wip
-    - mkdir -p $HOME/docker-shared
   cache_directories:
     - "~/docker-shared/sources"
+    - "~/docker"
+  override:
+    - docker info
+    - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
+    - docker pull jpf91/build-gdc:wip
+    - mkdir -p ~/docker; docker save jpf91/build-gdc:wip > ~/docker/image.tar
+    - mkdir -p $HOME/docker-shared
 
 test:
   override:
