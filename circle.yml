@@ -9,13 +9,13 @@ dependencies:
   override:
     - docker info
     - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
-    - docker pull jpf91/build-gdc:wip
-    - mkdir -p ~/docker; docker save jpf91/build-gdc:wip > ~/docker/image.tar
+    - docker pull jpf91/build-gdc
+    - mkdir -p ~/docker; docker save jpf91/build-gdc > ~/docker/image.tar
     - mkdir -p $HOME/docker-shared
 
 test:
   override:
-    - case $CIRCLE_NODE_INDEX in 0) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-linux-gnu --keep-alive=60; docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/i686-w64-mingw32 --keep-alive=60 ;; 1) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabihf --keep-alive=60 ;; 2) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/x86_64-w64-mingw32 --keep-alive=60 ;; 3) docker run -v $HOME/docker-shared/:/home/build/shared jpf91/build-gdc:wip /usr/bin/build-gdc build --toolchain=x86_64-linux-gnu/gcc-5/arm-linux-gnueabi --keep-alive=60 ;; esac:
+    - ./circle-ci.sh:
         parallel: true
 
 deployment:
@@ -23,3 +23,4 @@ deployment:
     branch: travis-docker
     commands:
       - ls -R $HOME/docker-shared
+
