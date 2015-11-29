@@ -43,6 +43,7 @@
 #include "d-lang.h"
 #include "d-objfile.h"
 #include "d-codegen.h"
+#include "d-dmd-gcc.h"
 #include "id.h"
 
 
@@ -1833,7 +1834,7 @@ d_mark_read (tree exp)
 // SD is the front-end struct type.
 
 tree
-build_struct_memcmp (tree_code code, StructDeclaration *sd, tree t1, tree t2)
+build_struct_memcmp(tree_code code, StructDeclaration *sd, tree t1, tree t2)
 {
   tree_code tcode = (code == EQ_EXPR) ? TRUTH_ANDIF_EXPR : TRUTH_ORIF_EXPR;
   tree tmemcmp = NULL_TREE;
@@ -1841,11 +1842,11 @@ build_struct_memcmp (tree_code code, StructDeclaration *sd, tree t1, tree t2)
   // Let backend take care of empty struct or union comparisons.
   if (!sd->fields.dim || sd->isUnionDeclaration())
     {
-      tmemcmp = d_build_call_nary (builtin_decl_explicit (BUILT_IN_MEMCMP), 3,
-				   build_address (t1), build_address (t2),
-				   size_int (sd->structsize));
+      tmemcmp = d_build_call_nary(builtin_decl_explicit(BUILT_IN_MEMCMP), 3,
+				  build_address(t1), build_address(t2),
+				  size_int(sd->structsize));
 
-      return build_boolop (code, tmemcmp, integer_zero_node);
+      return build_boolop(code, tmemcmp, integer_zero_node);
     }
 
   for (size_t i = 0; i < sd->fields.dim; i++)
@@ -1853,31 +1854,34 @@ build_struct_memcmp (tree_code code, StructDeclaration *sd, tree t1, tree t2)
       VarDeclaration *vd = sd->fields[i];
       tree sfield = vd->toSymbol()->Stree;
 
-      tree t1ref = component_ref (t1, sfield);
-      tree t2ref = component_ref (t2, sfield);
+      tree t1ref = component_ref(t1, sfield);
+      tree t2ref = component_ref(t2, sfield);
       tree tcmp;
 
       if (vd->type->ty == Tstruct)
 	{
 	  // Compare inner data structures.
 	  StructDeclaration *decl = ((TypeStruct *) vd->type)->sym;
-	  tcmp = build_struct_memcmp (code, decl, t1ref, t2ref);
+	  tcmp = build_struct_memcmp(code, decl, t1ref, t2ref);
 	}
       else
 	{
 	  tree stype = build_ctype(vd->type);
-	  machine_mode mode = int_mode_for_mode (TYPE_MODE (stype));
+	  machine_mode mode = int_mode_for_mode(TYPE_MODE (stype));
 
 	  if (vd->type->isintegral())
 	    {
 	      // Integer comparison, no special handling required.
-	      tcmp = build_boolop (code, t1ref, t2ref);
+	      tcmp = build_boolop(code, t1ref, t2ref);
 	    }
 	  else if (mode != BLKmode)
 	    {
 	      // Compare field bits as their corresponding integer type.
 	      //   *((T*) &t1) == *((T*) &t2)
-	      tree tmode = lang_hooks.types.type_for_mode (mode, 1);
+	      tree tmode = lang_hooks.types.type_for_mode(mode, 1);
+
+	      if (tmode == NULL_TREE)
+		tmode = make_unsigned_type(GET_MODE_BITSIZE(mode));
 
 	      t1ref = build_vconvert (tmode, t1ref);
 	      t2ref = build_vconvert (tmode, t2ref);
@@ -2278,10 +2282,12 @@ tree
 void_okay_p(tree t)
 {
   tree type = TREE_TYPE (t);
-  tree totype = build_ctype(Type::tuns8->pointerTo());
 
   if (VOID_TYPE_P (TREE_TYPE (type)))
-    return fold_convert(totype, t);
+    {
+      tree totype = build_ctype(Type::tuns8->pointerTo());
+      return fold_convert(totype, t);
+    }
 
   return t;
 }
@@ -3085,6 +3091,30 @@ maybe_set_intrinsic (FuncDeclaration *decl)
     }
 }
 
+//
+tree
+expand_volatile_load(tree arg1)
+{
+  tree type = TREE_TYPE (arg1);
+  gcc_assert (POINTER_TYPE_P (type));
+
+  tree tvolatile = build_qualified_type(TREE_TYPE (arg1), TYPE_QUAL_VOLATILE);
+  tree result = indirect_ref(tvolatile, arg1);
+  TREE_THIS_VOLATILE (result) = 1;
+
+  return result;
+}
+
+tree
+expand_volatile_store(tree arg1, tree arg2)
+{
+  tree tvolatile = build_qualified_type(TREE_TYPE (arg2), TYPE_QUAL_VOLATILE);
+  tree result = indirect_ref(tvolatile, arg1);
+  TREE_THIS_VOLATILE (result) = 1;
+
+  return modify_expr(tvolatile, result, arg2);
+}
+
 // If CALLEXP is a BUILT_IN_FRONTEND, expand and return inlined
 // compiler generated instructions. Most map onto GCC builtins,
 // others require a little extra work around them.
@@ -3228,6 +3258,15 @@ expand_intrinsic(tree callexp)
 	  return expand_intrinsic_arith(BUILT_IN_SUB_OVERFLOW,
 					callexp, op1, op2, op3);
 
+	case INTRINSIC_VLOAD:
+	  op1 = CALL_EXPR_ARG (callexp, 0);
+	  return expand_volatile_load(op1);
+
+	case INTRINSIC_VSTORE:
+	  op1 = CALL_EXPR_ARG (callexp, 0);
+	  op2 = CALL_EXPR_ARG (callexp, 1);
+	  return expand_volatile_store(op1, op2);
+
 	default:
 	  gcc_unreachable();
 	}
@@ -3285,8 +3324,8 @@ build_float_modulus (tree type, tree arg0, tree arg1)
 tree
 build_typeinfo (Type *t)
 {
-  tree tinfo = t->getInternalTypeInfo (NULL)->toElem(NULL);
-  gcc_assert (POINTER_TYPE_P (TREE_TYPE (tinfo)));
+  tree tinfo = getTypeInfo(t, NULL)->toElem(NULL);
+  gcc_assert(POINTER_TYPE_P (TREE_TYPE (tinfo)));
   return tinfo;
 }
 

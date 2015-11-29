@@ -30,6 +30,7 @@
 #include "dfrontend/template.h"
 #include "dfrontend/nspace.h"
 #include "dfrontend/target.h"
+#include "dfrontend/hdrgen.h"
 
 #include "tree.h"
 #include "tree-iterator.h"
@@ -55,6 +56,7 @@
 #include "d-lang.h"
 #include "d-objfile.h"
 #include "d-codegen.h"
+#include "d-dmd-gcc.h"
 #include "id.h"
 
 static FuncDeclaration *build_call_function (const char *, vec<FuncDeclaration *>, bool);
@@ -247,7 +249,7 @@ StructDeclaration::toObjFile(bool)
     return;
 
   // Generate TypeInfo
-  type->genTypeInfo(NULL);
+  genTypeInfo(type, NULL);
 
   // Generate static initialiser
   toInitializer();
@@ -306,7 +308,7 @@ ClassDeclaration::toObjFile(bool)
   d_finish_symbol (sinit);
 
   // Put out the TypeInfo
-  type->genTypeInfo(NULL);
+  genTypeInfo(type, NULL);
 
   // must be ClassInfo.size
   size_t offset = CLASSINFO_SIZE;
@@ -397,6 +399,15 @@ ClassDeclaration::toObjFile(bool)
 
   if (ctor)
     flags |= ClassFlags::hasCtor;
+
+  for (ClassDeclaration *cd = this; cd; cd = cd->baseClass)
+    {
+      if (cd->dtor)
+	{
+	  flags |= ClassFlags::hasDtor;
+	  break;
+	}
+    }
 
   if (isabstract)
     flags |= ClassFlags::isAbstract;
@@ -574,7 +585,7 @@ Lhaspointers:
 		    {
 		      deprecation ("use of %s%s hidden by %s is deprecated. "
 				   "Use 'alias %s = %s.%s;' to introduce base class overload set.",
-				   fd->toPrettyChars(), Parameter::argsTypesToChars(tf->parameters, tf->varargs), toChars(),
+				   fd->toPrettyChars(), parametersTypeToChars(tf->parameters, tf->varargs), toChars(),
 				   fd->toChars(), fd->parent->toChars(), fd->toChars());
 		    }
 		  else
@@ -654,7 +665,7 @@ InterfaceDeclaration::toObjFile(bool)
   toSymbol();
 
   // Put out the TypeInfo
-  type->genTypeInfo(NULL);
+  genTypeInfo(type, NULL);
   type->vtinfo->toObjFile(false);
 
   /* Put out the ClassInfo.
@@ -780,7 +791,7 @@ EnumDeclaration::toObjFile(bool)
     return;
 
   // Generate TypeInfo
-  type->genTypeInfo(NULL);
+  genTypeInfo(type, NULL);
 
   TypeEnum *tc = (TypeEnum *) type;
   if (tc->sym->members && !type->isZeroInit())
@@ -1739,7 +1750,7 @@ setup_symbol_storage (Dsymbol *dsym, tree decl, bool public_p)
 	      D_DECL_ONE_ONLY (decl) = 1;
 	      D_DECL_IS_TEMPLATE (decl) = 1;
 	      local_p = flag_emit_templates
-		&& output_module_p (ti->instantiatingModule);
+		&& output_module_p (ti->minst);
 	      break;
 	    }
 	  sym = sym->toParent();
@@ -1761,9 +1772,6 @@ setup_symbol_storage (Dsymbol *dsym, tree decl, bool public_p)
       // Tell backend this is a thread local decl.
       if (vd && vd->isDataseg() && vd->isThreadlocal())
 	set_decl_tls_model (decl, decl_default_tls_model (decl));
-
-      if (rd && rd->storage_class & STCcomdat)
-	D_DECL_ONE_ONLY (decl) = 1;
 
       // Do this by default, but allow private templates to override
       if (public_p || !fd || !fd->isNested())
@@ -2202,8 +2210,8 @@ build_simple_function (const char *name, tree expr, bool static_ctor)
 
   TypeFunction *func_type = new TypeFunction (0, Type::tvoid, 0, LINKc);
   FuncDeclaration *func = new FuncDeclaration (mod->loc, mod->loc,
-					       Lexer::idPool (name), STCstatic, func_type);
-  func->loc = Loc(mod, 1, 0);
+					       Identifier::idPool (name), STCstatic, func_type);
+  func->loc = Loc(mod->srcfile->toChars(), 1, 0);
   func->linkage = func_type->linkage;
   func->parent = mod;
   func->protection = PROTprivate;
@@ -2243,7 +2251,7 @@ build_call_function (const char *name, vec<FuncDeclaration *> functions, bool fo
   Module *mod = current_module_decl;
   if (!mod)
     mod = d_gcc_get_output_module();
-  set_input_location(Loc(mod, 1, 0));
+  set_input_location(Loc(mod->srcfile->toChars(), 1, 0));
 
   // Shouldn't front end build these?
   for (size_t i = 0; i < functions.length(); i++)
@@ -2287,12 +2295,12 @@ build_emutls_function (vec<VarDeclaration *> tlsVars)
   TypeFunction *del_func_type = new TypeFunction (del_args, Type::tvoid, 0, LINKd, STCnothrow);
   Parameters *args = new Parameters();
   Parameter *dg_arg = new Parameter (STCscope, new TypeDelegate (del_func_type),
-				     Lexer::idPool ("dg"), NULL);
+				     Identifier::idPool ("dg"), NULL);
   args->push (dg_arg);
   TypeFunction *func_type = new TypeFunction (args, Type::tvoid, 0, LINKd, STCnothrow);
   FuncDeclaration *func = new FuncDeclaration (mod->loc, mod->loc,
-					       Lexer::idPool (name), STCstatic, func_type);
-  func->loc = Loc (mod, 1, 0);
+					       Identifier::idPool (name), STCstatic, func_type);
+  func->loc = Loc(mod->srcfile->toChars(), 1, 0);
   func->linkage = func_type->linkage;
   func->parent = mod;
   func->protection = PROTprivate;
