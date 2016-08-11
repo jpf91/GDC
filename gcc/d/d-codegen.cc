@@ -4663,6 +4663,15 @@ layout_aggregate_type(AggregateDeclaration *decl, tree type, AggregateDeclaratio
 	    }
 	}
     }
+  else if (!cd)
+    {
+      // empty structs need to have one byte sized field
+      tree field = build_decl(UNKNOWN_LOCATION, FIELD_DECL, NULL_TREE,
+			      ubyte_type_node);
+      DECL_ARTIFICIAL (field) = false;
+      DECL_IGNORED_P (field) = false;
+      insert_aggregate_field(base->loc, type, field, 0);
+    }
 
   if (cd && cd->vtblInterfaces)
     {
